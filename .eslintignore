@@ -1,0 +1,12 @@
+index.html
+.eslintignore
+.eslintrc.js
+rollup.config.mjs
+vite.config.ts
+webpack.config.js
+commitlint.config.js
+webpack.build.js
+jest.config.js
+jest-setup.ts
+coverage
+dist/
