@@ -6,6 +6,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
+import { GlobalHistory } from './components/commoms/GlobalHistory';
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
@@ -13,6 +14,7 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <BrowserRouter>
+      <GlobalHistory />
       <Provider store={store}>
         <App />
       </Provider>
