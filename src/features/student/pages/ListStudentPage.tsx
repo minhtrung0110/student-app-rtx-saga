@@ -1,82 +1,56 @@
-import React, { FC } from 'react';
-import { Space, Table, Tag } from 'antd';
-import { ColumnsType } from 'antd/es/table';
-import { DataTableStudentType } from '../../../models';
+import React, { FC, useEffect } from 'react';
+import {
+  selectStudentFilter,
+  selectStudentList,
+  selectStudentLoading,
+  studentActions,
+} from '../studentSlice';
+import { useAppDispatch, useAppSelector } from 'src/app/hooks';
+import TableStudent from '../components/TableStudent';
+import FilterStudent from '../components/FilterStudent';
+import TableSkeleton from 'src/components/commoms/Skeleton/TableSkeleton';
+import { ListParams } from '../../../models';
+import studentApi from '../../../api/studentApi';
 
 const ListStudentPage: FC = () => {
-  const columns: ColumnsType<DataTableStudentType> = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: text => <a>{text}</a>,
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
-      key: 'age',
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
-    },
-    {
-      title: 'Tags',
-      key: 'tags',
-      dataIndex: 'tags',
-      render: (_, { tags }) => (
-        <>
-          {tags.map(tag => {
-            let color = tag.length > 5 ? 'geekblue' : 'green';
-            if (tag === 'loser') {
-              color = 'volcano';
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      ),
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <Space size="middle">
-          <a>Invite {record.name}</a>
-          <a>Delete</a>
-        </Space>
-      ),
-    },
-  ];
+  const dispatch = useAppDispatch();
+  const studentList = useAppSelector(selectStudentList);
+  //  const pagination = useAppSelector(selectStudentPagination);
+  const filter = useAppSelector(selectStudentFilter);
+  const loading = useAppSelector(selectStudentLoading);
 
-  const data: DataTableStudentType[] = [
-    {
-      key: '1',
-      name: 'John Brown',
-      age: 32,
-      address: 'New York No. 1 Lake Park',
-      tags: ['nice', 'developer'],
-    },
-    {
-      key: '2',
-      name: 'Jim Green',
-      age: 42,
-      address: 'London No. 1 Lake Park',
-      tags: ['loser'],
-    },
-    {
-      key: '3',
-      name: 'Joe Black',
-      age: 32,
-      address: 'Sydney No. 1 Lake Park',
-      tags: ['cool', 'teacher'],
-    },
-  ];
-  return <Table columns={columns} dataSource={data} />;
+  useEffect(() => {
+    dispatch(studentActions.fetchStudentList(filter));
+  }, [dispatch, filter]);
+  const handleFilterChange = (newFilter: ListParams) => {
+    dispatch(studentActions.setFilter(newFilter));
+  };
+  const handleDeleteStudent = async (id: string | number | boolean) => {
+    try {
+      await studentApi.remove(id);
+      updateState(id);
+    } catch (err) {}
+  };
+  const updateState = id => {
+    const newStudentList = studentList.filter(student => student.id !== id);
+    console.log('List Mới:', newStudentList);
+    dispatch(studentActions.fetchStudentListSuccess(newStudentList));
+  };
+  console.log('Filter:', filter);
+  return (
+    <div className={'student-page'}>
+      <div className={'student-page-header'}>
+        <FilterStudent filter={filter} onSearchChange={handleFilterChange} />
+      </div>
+      {!loading ? (
+        <div className={'student-page-content'}>
+          <TableStudent listStudent={studentList} onDelete={handleDeleteStudent} />
+        </div>
+      ) : (
+        <TableSkeleton />
+      )}
+    </div>
+  );
 };
 
 export default ListStudentPage;

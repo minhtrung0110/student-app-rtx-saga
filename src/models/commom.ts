@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 export interface PaginationParams {
   _limit: number;
   _page: number;
@@ -9,9 +11,14 @@ export interface ListResponse<T> {
   pagination: PaginationParams;
 }
 
+// export interface ListResponse<T> {
+//   data: T[];
+//   pagination: PaginationParams;
+// }
+
 export interface ListParams {
-  _page?: number;
-  _limit?: number;
+  // _page?: number;
+  //_limit?: number;
   _sort?: string;
   _order?: 'asc' | 'desc';
 
@@ -21,7 +28,11 @@ export interface ListParams {
 export interface RouteConfig {
   home: string;
   login: string;
-  list_students: string;
+  list_student: string;
+  add_student: string;
+  update_student: string;
+  delete_student: string;
+  tasks: string;
 }
 
 export interface Config {
@@ -29,9 +40,9 @@ export interface Config {
 }
 
 export interface DataTableStudentType {
-  key: string;
-  name: string;
-  age: number;
+  avatar: ReactNode;
+  full_name: string;
+  contact: ReactNode;
   address: string;
-  tags: string[];
+  status: ReactNode;
 }
