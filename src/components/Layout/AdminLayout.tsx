@@ -1,22 +1,22 @@
 import React, { FC, ReactNode, useState } from 'react';
-import { Button, Layout, Menu, theme } from 'antd';
-import Sider from 'antd/es/layout/Sider';
+import { Layout } from 'antd';
 import { NavLink } from 'react-router-dom';
 import { config } from 'src/config';
-import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  SolutionOutlined,
-  UnorderedListOutlined,
-} from '@ant-design/icons';
-import { Content, Header } from 'antd/es/layout/layout';
+import { SolutionOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { Content } from 'antd/es/layout/layout';
+import { THEME } from '../../constants';
+import { useAppDispatch } from '../../app/hooks';
+import { authActions } from '../../features/auth/authSlice';
+import HeaderCustom from './HeaderCustom';
+import SidebarCustom from './SidebarCustom';
 
 interface AdminLayoutProps {
   slot: ReactNode;
 }
 
 const AdminLayout: FC<AdminLayoutProps> = ({ slot }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
 
   function getItem(label: ReactNode, key: string, icon: ReactNode) {
     return {
@@ -28,8 +28,8 @@ const AdminLayout: FC<AdminLayoutProps> = ({ slot }) => {
 
   const listNavItems = [
     getItem(
-      <NavLink to={config.routes.list_students}>Học Viên</NavLink>,
-      config.routes.list_students,
+      <NavLink to={config.routes.list_student}>Học Viên</NavLink>,
+      config.routes.list_student,
       <UnorderedListOutlined />,
     ),
     getItem(
@@ -38,34 +38,22 @@ const AdminLayout: FC<AdminLayoutProps> = ({ slot }) => {
       <SolutionOutlined />,
     ),
   ];
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
+
+  const backgroundColor = THEME?.token?.backgroundColor;
+  const handleLogout = () => {
+    dispatch(authActions.logout());
+  };
   return (
     <Layout>
-      <Sider trigger={null} collapsible collapsed={collapsed} style={{ minHeight: 750 }}>
-        <div className="demo-logo-vertical">Student-Project</div>
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} items={listNavItems} />
-      </Sider>
+      <SidebarCustom collapsed={collapsed} listNavItems={listNavItems} />
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: '16px',
-              width: 60,
-              height: 60,
-            }}
-          />
-        </Header>
+        <HeaderCustom collapsed={collapsed} onCollapsed={setCollapsed} onLogout={handleLogout} />
         <Content
           style={{
-            margin: '24px 16px',
+            margin: '24px',
             padding: 24,
             minHeight: 280,
-            background: colorBgContainer,
+            background: backgroundColor,
           }}
         >
           {slot}
