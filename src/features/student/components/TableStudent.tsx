@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react';
-import { Button, Space, Table, Tag } from 'antd';
+import { Button, Space, Table, Tag, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { DataTableStudentType, Student } from 'src/models';
 import styled from 'styled-components';
@@ -7,6 +7,9 @@ import AvatarCustom from '../../../components/commoms/AvatarCustom';
 import { globalNavigate } from '../../../components/commoms/GlobalHistory';
 import { config } from '../../../config';
 import ConfirmModal from '../../../components/commoms/ConfirmModal';
+import MailLink from '../../../components/commoms/MailLink';
+import { THEME } from '../../../constants';
+import { DeleteFilled, EditFilled } from '@ant-design/icons';
 
 interface TableStudentProps {
   listStudent: Student[];
@@ -43,9 +46,7 @@ const TableStudent: FC<TableStudentProps> = ({ listStudent, onDelete }) => {
       <Tag color="volcano" className="tag-item phone-number">
         {phone}
       </Tag>
-      <Tag color="blue" className="tag-item mail">
-        {mail}
-      </Tag>
+      <MailLink email={mail} color={THEME.token.bsInfo} />
       <Tag color={gender === 'female' ? 'magenta' : 'green'} className="tag-item gender">
         {gender}
       </Tag>
@@ -56,32 +57,46 @@ const TableStudent: FC<TableStudentProps> = ({ listStudent, onDelete }) => {
       title: 'Avatar',
       dataIndex: 'avatar',
       key: 'avatar',
+      align: 'center',
+      width: '8%',
     },
+
     {
       title: 'Full Name',
       dataIndex: 'full_name',
       key: 'full_name',
-      render: text => <span>{text}</span>,
+      render: text => <strong>{text}</strong>,
+      align: 'center',
+      width: '15%',
     },
     {
       title: 'Contact',
       dataIndex: 'contact',
       key: 'contact',
+      align: 'center',
+      width: '20%',
     },
     {
       title: 'Address',
       dataIndex: 'address',
       key: 'address',
+      render: text => <i>{text}</i>,
+      align: 'center',
+      width: '20%',
     },
     {
       title: 'Status',
       key: 'status',
       dataIndex: 'status',
+      align: 'center',
+      width: '8%',
     },
     {
       title: 'Action',
       key: 'action',
       dataIndex: 'action',
+      align: 'center',
+      width: '15%',
     },
   ];
 
@@ -106,10 +121,16 @@ const TableStudent: FC<TableStudentProps> = ({ listStudent, onDelete }) => {
     ),
     action: (
       <Space size="middle">
-        <Button onClick={() => handleEditStudent(student.id)}>Update</Button>
-        <Button danger onClick={() => handleShowConfirm(student.id)}>
-          Delete
-        </Button>
+        <Tooltip placement="bottomLeft" title={'Edit'}>
+          <Button
+            icon={<EditFilled />}
+            color={THEME.token.primaryColor}
+            onClick={() => handleEditStudent(student.id)}
+          />
+        </Tooltip>
+        <Tooltip placement="bottomRight" title={'Delete'}>
+          <Button icon={<DeleteFilled />} danger onClick={() => handleShowConfirm(student.id)} />
+        </Tooltip>
       </Space>
     ),
   }));

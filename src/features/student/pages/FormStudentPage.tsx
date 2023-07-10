@@ -7,9 +7,19 @@ import { globalNavigate } from '../../../components/commoms/GlobalHistory';
 import { config } from '../../../config';
 import FormStudent from '../components/FormStudent';
 import TableSkeleton from '../../../components/commoms/Skeleton/TableSkeleton';
+import styled from 'styled-components';
+import { THEME } from '../../../constants';
 
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
-const AddStudentPage: FC = () => {
+
+const FormPage = styled.div`
+  margin: 40px;
+  box-shadow: 1px 2px ${THEME.token.gray80Color};
+  background-color: #fff;
+  padding: ${THEME.token.pdContent} calc(2 * ${THEME.token.pdContent});
+  border-radius: calc(2 * ${THEME.token.borderRadius});
+`;
+const FormStudentPage: FC = () => {
   const { studentId } = useParams<{ studentId: string }>();
   const isEdit = Boolean(studentId);
   const [student, setStudent] = useState<Student>();
@@ -67,7 +77,7 @@ const AddStudentPage: FC = () => {
     }
   };
   return (
-    <div className="">
+    <FormPage>
       {contextHolder}
       <div className="header"></div>
       {loading ? (
@@ -81,8 +91,8 @@ const AddStudentPage: FC = () => {
           />
         </div>
       )}
-    </div>
+    </FormPage>
   );
 };
 
-export default AddStudentPage;
+export default FormStudentPage;

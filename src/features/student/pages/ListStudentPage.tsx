@@ -7,11 +7,16 @@ import {
 } from '../studentSlice';
 import { useAppDispatch, useAppSelector } from 'src/app/hooks';
 import TableStudent from '../components/TableStudent';
-import FilterStudent from '../components/FilterStudent';
+import FilterStudent from '../components/FilterStudent/FilterStudent';
 import TableSkeleton from 'src/components/commoms/Skeleton/TableSkeleton';
-import { ListParams } from '../../../models';
-import studentApi from '../../../api/studentApi';
+import { ListParams } from 'src/models';
+import studentApi from 'src/api/studentApi';
+import styled from 'styled-components';
 
+const ListPageStyled = styled.div`
+  padding: 24px;
+  margin: 12px;
+`;
 const ListStudentPage: FC = () => {
   const dispatch = useAppDispatch();
   const studentList = useAppSelector(selectStudentList);
@@ -22,8 +27,9 @@ const ListStudentPage: FC = () => {
   useEffect(() => {
     dispatch(studentActions.fetchStudentList(filter));
   }, [dispatch, filter]);
-  const handleFilterChange = (newFilter: ListParams) => {
-    dispatch(studentActions.setFilter(newFilter));
+
+  const handleSearchChange = (newFilter: ListParams) => {
+    dispatch(studentActions.setFilterWithDebounce(newFilter));
   };
   const handleDeleteStudent = async (id: string | number | boolean) => {
     try {
@@ -38,9 +44,9 @@ const ListStudentPage: FC = () => {
   };
   console.log('Filter:', filter);
   return (
-    <div className={'student-page'}>
+    <ListPageStyled className={'student-page'}>
       <div className={'student-page-header'}>
-        <FilterStudent filter={filter} onSearchChange={handleFilterChange} />
+        <FilterStudent filter={filter} onSearchChange={handleSearchChange} />
       </div>
       {!loading ? (
         <div className={'student-page-content'}>
@@ -49,7 +55,7 @@ const ListStudentPage: FC = () => {
       ) : (
         <TableSkeleton />
       )}
-    </div>
+    </ListPageStyled>
   );
 };
 

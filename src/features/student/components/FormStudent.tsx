@@ -113,7 +113,7 @@ const HeaderForm = styled(Col)`
   color: ${THEME?.token?.white};
   font-weight: bold;
   background-color: ${THEME?.token?.primaryColor};
-  margin-bottom: 2.5rem;
+  margin-bottom: 3.5rem;
 
   .title {
     line-height: 2.4rem;
@@ -176,8 +176,8 @@ const FormStudent: FC<FormStudentProps> = ({ dataStudent, onSubmit, type = 'crea
         <Row className="basic-info">
           <HeaderForm className="col-title" xs={{ span: 24 }} lg={{ span: 24 }}>
             <span className="title">{`${
-              type === 'create' ? 'Tạo' : 'Cập Nhật Mới Sinh Viên'
-            }`}</span>
+              type === 'create' ? 'Tạo Mới' : 'Cập Nhật'
+            } Sinh Viên`}</span>
           </HeaderForm>
           <Col className="col-left" xs={{ span: 24 }} lg={{ span: 12 }}>
             <Form.Item
