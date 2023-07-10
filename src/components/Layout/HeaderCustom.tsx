@@ -72,6 +72,7 @@ const HeaderCustom: FC<HeaderProps> = ({ collapsed, onCollapsed, onLogout }) => 
         icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         onClick={() => onCollapsed(!collapsed)}
       />
+
       <Dropdown menu={{ items }} trigger={['click']}>
         <Space>
           <AvatarCustom avatar={'https://i.ibb.co/mvybfht/C-i-n-3-1.jpg'} lastName={'Trung'} />
