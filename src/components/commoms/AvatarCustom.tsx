@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar } from 'antd';
-import { isEmpty } from 'lodash';
 import styled from 'styled-components';
 
 interface AvatarCustomProps {
@@ -9,12 +8,18 @@ interface AvatarCustomProps {
   size?: 'large' | 'small' | 'default';
 }
 
+const BoxAvatar = styled.div`
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  cursor: pointer;
+`;
 const AvatarCustom: React.FC<AvatarCustomProps> = ({
   avatar = 'http://',
   lastName = 'A',
   size = 'large',
 }) => {
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState<boolean>(false);
 
   useEffect(() => {
     const checkImageUrl = (url: string) => {
@@ -26,14 +31,8 @@ const AvatarCustom: React.FC<AvatarCustomProps> = ({
     checkImageUrl(avatar);
   }, [avatar]);
 
-  const array = !isEmpty(lastName) ? lastName.split(' ') : [];
   const name = lastName.charAt(0);
-  const BoxAvatar = styled.div`
-    display: flex;
-    align-content: center;
-    justify-content: center;
-    cursor: pointer;
-  `;
+
   return (
     <BoxAvatar className={'avatar-user'}>
       {show ? (
@@ -45,7 +44,7 @@ const AvatarCustom: React.FC<AvatarCustomProps> = ({
         />
       ) : (
         <Avatar
-          style={{ backgroundColor: '#f56a00', verticalAlign: 'middle' }}
+          style={{ backgroundColor: '#f63a88', verticalAlign: 'middle' }}
           size={size}
           className={'avatar'}
         >
