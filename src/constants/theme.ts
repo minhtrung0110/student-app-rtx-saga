@@ -1,5 +1,5 @@
 type TTheme = {
-  token?: { [key: string | number]: string };
+  token: { [key: string | number]: string };
 };
 
 export const THEME: TTheme = {
@@ -12,12 +12,13 @@ export const THEME: TTheme = {
     grey: '#eff0f1',
     dark: '#342E37',
     dark50: 'rgba(38, 24, 26, 0.8)',
+    dragColor: 'rgba(250,102,22,0.12)',
+    noDragColor: 'transparent',
     negativeSecondary: 'rgba(233,64,64,.12)',
     criticalSecondary: 'rgba(250,140,22,.12)',
     informativeSecondary: 'rgba(24,186,255,.12)',
     prGreen: '#3ab67b',
     prGreenLight: '#56ca7629',
-    borderRadius: '0.3rem',
     red: '#e84261',
     yellow: '#FFCE26',
     lightYellow: '#FFF2C6',
@@ -49,5 +50,30 @@ export const THEME: TTheme = {
     blue: '#1577e0',
     lightBlue: '#CFE8FF',
     darkGrey: '#AAAAAA',
+    bootstrapBorderColor: '#ced4da',
+    bsActive: '#42a18b',
+    bsDisabled: '#ce5c6d',
+    bgColumTask: '#f1f1f1',
+
+    pdContent: '24px',
+    taskBrRadius: '3px',
+    borderRadius: '0.3rem',
+
+    size2: '0.125rem',
+    size4: '0.25rem',
+    size6: '0.375rem',
+    size8: '0.5rem',
+    size10: '0.6rem',
+    size12: '0.75rem',
+    size14: '0.875rem',
+    size16: '1rem',
+    size18: '1.124rem',
+    size20: '1.25rem',
+    size22: '1.375rem',
+    size24: '1.5rem',
+    size26: '1.675rem',
+    size28: '2rem',
+    size30: '2.5rem',
+    size48: '3rem',
   },
 };

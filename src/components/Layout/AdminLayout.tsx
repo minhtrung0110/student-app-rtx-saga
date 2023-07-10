@@ -50,8 +50,8 @@ const AdminLayout: FC<AdminLayoutProps> = ({ slot }) => {
         <HeaderCustom collapsed={collapsed} onCollapsed={setCollapsed} onLogout={handleLogout} />
         <Content
           style={{
-            margin: '24px',
-            padding: 24,
+            margin: '5px',
+            padding: 5,
             minHeight: 280,
             background: backgroundColor,
           }}
