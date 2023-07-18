@@ -8,7 +8,6 @@ export interface PaginationParams {
 
 export interface ListResponse<T> {
   data: T[];
-  pagination: PaginationParams;
 }
 
 // export interface ListResponse<T> {
@@ -19,6 +18,7 @@ export interface ListResponse<T> {
 export interface ListParams {
   // _page?: number;
   //_limit?: number;
+  _type?: string;
   _sort?: string;
   _order?: 'asc' | 'desc';
 
@@ -35,8 +35,13 @@ export interface RouteConfig {
   tasks: string;
 }
 
+export interface ServerUrl {
+  [key: string]: string;
+}
+
 export interface Config {
   routes: RouteConfig;
+  servers: ServerUrl;
 }
 
 export interface DataTableStudentType {
@@ -45,4 +50,16 @@ export interface DataTableStudentType {
   contact: ReactNode;
   address: string;
   status: ReactNode;
+}
+
+export class ApiResponse<T> {
+  status: number;
+  message: string;
+  data: T;
+
+  constructor(statusCode: number, message: string, data: T) {
+    this.status = statusCode;
+    this.message = message;
+    this.data = data;
+  }
 }
