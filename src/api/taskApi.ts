@@ -3,7 +3,7 @@ import axiosKanban from './axiosKanban';
 
 const prefix = '/tasks';
 const taskApi = {
-  getAll(): Promise<ListResponse<Task>> {
+  getAll(params): Promise<ListResponse<Task>> {
     return axiosKanban.get(prefix);
   },
 

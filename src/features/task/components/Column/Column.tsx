@@ -14,7 +14,7 @@ import { AreaAddTask, ContainerColumn, Footer, Header, MoreButton } from './Colu
 import { BtnCancelStyledTask, BtnOkStyledTask } from 'src/constants/component-styled';
 
 // Components
-import { Card } from '../Card/Card';
+import { Card } from 'src/features/task/components/Card/Card';
 import { StrictModeDroppable } from 'src/components/commoms/StrictModeDroppable';
 import ConfirmModal from 'src/components/commoms/ConfirmModal';
 
@@ -55,14 +55,14 @@ interface ColumnProps {
 const compareProps = (prev, next) => {
   const isEqualList = isEqual(prev.list, next.list);
   const isEqualCards = isEqual(prev.cards, next.cards);
-  console.log(isEqualList, isEqualCards);
+  //  console.log(isEqualList, isEqualCards);
   return isEqualList && isEqualCards;
 };
 
 export const Column: FC<ColumnProps> = React.memo(
   ({ list, cards, onCreate, onUpdateTask, onDeleteTask, project_id }) => {
     // State
-    const [columnTitle, setColumnTitle] = useState<string>(list.title);
+    const [columnTitle, setColumnTitle] = useState<string>(list._id);
     const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
     const [valueNewCard, setValueNewCard] = useState<string>('');
     const [isAddCard, setIsAddCard] = useState<boolean>(false);

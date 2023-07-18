@@ -8,7 +8,7 @@ import TextArea from 'antd/es/input/TextArea';
 import { useAppDispatch, useAppSelector } from 'src/app/hooks';
 
 // Components
-import { Column } from '../Column/Column';
+import { Column } from 'src/features/task/components/Column/Column';
 
 // Actions
 import { projectActions, selectColumnList, selectTaskList } from 'src/features/task/projectSlice';
@@ -41,10 +41,10 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
   const newBoardColumns = [...columns]; // clone array of columns to Sort Column with sort key
   const listTaskColumns = sortArray(newBoardColumns).map(col => {
     const array = tasks.filter(task => task.column_id === col._id);
-    console.log('Array', tasks);
+    // console.log('Array', tasks);
     const newArray = [...array];
 
-    return { ...col, tasks: array };
+    return { ...col, tasks: sortArray(newArray) };
   });
 
   // Handle Drag and Drop
@@ -62,7 +62,7 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
       tasks: taskMixture.tasks,
       updated: taskMixture.updated,
     };
-    // console.log('Data Sau DND:', data.tasks);
+    console.log('Data Sau DND:', data);
     dispatch(projectActions.fetchTaskDragAndDrop(data));
   };
 
@@ -144,7 +144,7 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
                   value={newColTitle}
                   onChange={e => setNewColTitle(e.target.value)}
                   //  ref={newColInputRef}
-                  onKeyDown={event => event.key === 'Enter' && handleCreateNewColumn(event)}
+                  onKeyDown={event => event.key === 'Enter' && handleCreateNewColumn()}
                 />
                 <div className="ft-btn">
                   <BtnOkStyledTask onClick={handleCreateNewColumn}>Add</BtnOkStyledTask>

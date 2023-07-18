@@ -89,18 +89,28 @@ export const updateTaskAfterDND = (listTasks, destination, source, id) => {
 
       destinationColumn = destinationColumn.map((item, index) => ({ ...item, sort: index }));
     }
+    const updatedTask: any[] = [...sourceColumn, ...destinationColumn].map(t => ({
+      _id: t._id,
+      column_id: t.column_id,
+      sort: t.sort,
+    }));
     return {
       tasks: [...restColumns, ...sourceColumn, ...destinationColumn],
-      updated: [...sourceColumn, ...destinationColumn],
+      updated: updatedTask,
     };
   } else {
     const restColumns = listTasks.filter(item => item.column_id !== source.droppableId);
     const currentTask = sourceColumn.find(item => item._id === id);
     sourceColumn = moveElement(sourceColumn, currentTask, destination.index);
     sourceColumn = sourceColumn.map((item, index) => ({ ...item, sort: index }));
+    const updatedTask: any[] = sourceColumn.map(t => ({
+      _id: t._id,
+      column_id: t.column_id,
+      sort: t.sort,
+    }));
     return {
       tasks: [...restColumns, ...sourceColumn],
-      updated: [...sourceColumn],
+      updated: updatedTask,
     };
   }
 };

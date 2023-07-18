@@ -1,9 +1,9 @@
-import { ListResponse, Project, ProjectTask } from 'src/models';
+import { ListParams, ListResponse, Project, ProjectTask } from 'src/models';
 import axiosKanban from './axiosKanban';
 
 const prefix = '/projects';
 const projectApi = {
-  getAll(): Promise<ListResponse<ProjectTask>> {
+  getAll(params: ListParams): Promise<ListResponse<ProjectTask>> {
     const url = `${prefix}/64ad374466cc6c557758eb`;
     return axiosKanban.get(url);
     // return axiosKanban.get(prefix, { params });

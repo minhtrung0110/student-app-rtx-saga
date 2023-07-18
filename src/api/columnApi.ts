@@ -1,9 +1,9 @@
-import { ApiResponse, IColumn, IColumnCreate, ListResponse } from 'src/models';
+import { ApiResponse, IColumn, IColumnCreate, ListParams, ListResponse } from 'src/models';
 import axiosKanban from './axiosKanban';
 
 const prefix = '/columns';
 const columnApi = {
-  getAll(): Promise<ListResponse<IColumn>> {
+  getAll(params: ListParams): Promise<ListResponse<IColumn>> {
     const url = `${prefix}/64ad374466cc6c557758eb`;
     return axiosKanban.get(url);
     // return axiosKanban.get(prefix, { params });

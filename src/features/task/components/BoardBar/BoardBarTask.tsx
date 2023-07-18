@@ -24,6 +24,7 @@ const BoardBarTask: FC<BoardBarTaskProps> = ({ name }) => {
       //setShowCompleteSprint(true)
     }
   };
+
   return (
     <NavbarBoardStyled>
       <div className="board-view">
