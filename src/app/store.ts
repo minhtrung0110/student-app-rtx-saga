@@ -4,6 +4,7 @@ import createSagaMiddleware from 'redux-saga';
 import rootSaga from './rootSaga';
 import authReducer from 'src/features/auth/authSlice';
 import studentReducer from 'src/features/student/studentSlice';
+import projectReducer from '../features/task/projectSlice';
 
 const sagaMiddleware = createSagaMiddleware();
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
     counter: counterReducer,
     auth: authReducer,
     student: studentReducer,
+    project: projectReducer,
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(sagaMiddleware),
 });
