@@ -3,13 +3,14 @@ import styled from 'styled-components';
 import { Dropdown } from 'antd';
 
 export const ContainerColumn = styled.div`
-  min-width: 250px;
+  min-width: 300px;
   padding: 8px 11px;
   box-sizing: border-box;
   border-radius: 5px;
   background: ${THEME.token.bgColumTask};
   width: 260px;
-  min-height: 300px;
+  min-height: 80px;
+  max-height: 780px;
   flex: 0 0 auto;
   max-width: 350px;
   margin-left: 10px;

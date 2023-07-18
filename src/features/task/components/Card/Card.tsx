@@ -1,78 +1,124 @@
+// Libraries
 import React, { FC, useState } from 'react';
+import { isEmpty, isEqual } from 'lodash';
+import { DeleteOutlined, EditOutlined, EllipsisOutlined } from '@ant-design/icons';
+
+//Styles
 import {
   FooterTask,
   HeaderLeft,
   HeaderRight,
   HeaderTask,
   PriorityTag,
-  SaveButton,
   TaskItem,
+  TextEdit,
 } from './Card.styles';
-import GroupMember from '../../../../components/commoms/GroupMember';
-import { listMembersForTask } from '../../../../utils/initTask';
-import { EditOutlined } from '@ant-design/icons';
+import { MoreButton } from '../Column/Column.styles';
+
+//Modules
+import GroupMember from 'src/components/commoms/GroupMember';
+
+// Models
+import { Task } from 'src/models';
+
+// Utils
+import { generateRandomID } from 'src/utils/common';
+
+const items = [
+  {
+    label: 'Edit',
+    key: '1',
+    icon: <EditOutlined />,
+  },
+  {
+    label: 'Remove',
+    key: '2',
+    icon: <DeleteOutlined />,
+    danger: true,
+  },
+];
 
 interface ICard {
-  text: string;
-  id: string;
-  cardsDispatch: any;
+  task: Task;
+  onUpdate: (task: Task) => void;
+  onDelete: (id: string) => void;
 }
 
-export const Card: FC<ICard> = ({ text, id, cardsDispatch }) => {
-  const [isEdit, setIsEdit] = useState(false);
-  const onDeleteClick = () => {
-    cardsDispatch({ type: 'REMOVE', payload: { id } });
+const compareProps = (prev, next) => {
+  console.log('Memo Card: ', isEqual(prev.task, next.task));
+  return isEqual(prev.task, next.task);
+};
+
+export const Card: FC<ICard> = React.memo(({ task, onUpdate, onDelete }) => {
+  const { _id, sort, priority, ...rest } = task;
+  const members = task.assignee_user;
+  const [title, setTitle] = useState<string>(task.title);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+
+  const handleUpdateTitle = () => {
+    if (task.title !== title) {
+      onUpdate({ ...task, title: title });
+    }
+    setIsEdit(false);
   };
 
-  const onEditClick = (evt: any, id: string) => {
-    setIsEdit(true);
+  const handleMenuClick = e => {
+    if (e.key === '1') {
+      setIsEdit(true);
+    } else if (e.key === '2') {
+      onDelete(_id);
+    } else {
+    }
   };
 
-  const handleNameChange = (evt: any) => {
-    const { value } = evt.target;
-    cardsDispatch({
-      type: 'EDIT',
-      payload: { id, editValue: value },
-    });
-  };
   return (
     <TaskItem>
       <HeaderTask>
         <HeaderLeft>
-          {isEdit ? (
-            <input
-              className={'input-title'}
-              type="text"
-              defaultValue={text}
-              onChange={handleNameChange}
-              onBlur={() => setIsEdit(false)}
-              onKeyPress={evt => {
-                if (evt.key === 'Enter') {
-                  setIsEdit(false);
-                }
-              }}
-            />
+          {!isEdit ? (
+            <span className={'title'}>{title}</span>
           ) : (
-            text
+            <TextEdit value={title} onChange={e => setTitle(e.target.value)} />
           )}
         </HeaderLeft>
         <HeaderRight>
           {isEdit ? (
-            <SaveButton onClick={() => setIsEdit(false)}>Save</SaveButton>
-          ) : (
-            <div className={'btn-edit'} onClick={evt => onEditClick(evt, id)}>
-              <EditOutlined className={'icon'} />
+            <div className={'btn-save'} onClick={handleUpdateTitle}>
+              Save
             </div>
+          ) : (
+            <MoreButton
+              className="dropdown-btn"
+              menu={{
+                items,
+                onClick: handleMenuClick,
+              }}
+              placement="bottomRight"
+              overlayStyle={{
+                padding: '0',
+                margin: '0',
+              }}
+              overlayClassName="overlay-more"
+            >
+              <div>
+                <EllipsisOutlined className="dot" />
+              </div>
+            </MoreButton>
           )}
         </HeaderRight>
       </HeaderTask>
       <FooterTask>
-        <div className="id">Id:iddad</div>
-        <PriorityTag id={'highly'}>Highly</PriorityTag>
+        <div className="id">
+          {!!_id ? _id.slice(_id.length - 6, _id.length - 1) : generateRandomID()}
+          {`-${sort}`}
+        </div>
+        <PriorityTag id={priority.name.toLowerCase()}>{priority.name}</PriorityTag>
         <div className={'group-member'}>
-          <GroupMember listMember={listMembersForTask} maxCount={2} size={'small'} showCount={2} />
+          {!isEmpty(members) && (
+            <GroupMember listMember={members} maxCount={2} size={'small'} showCount={2} />
+          )}
         </div>
       </FooterTask>
     </TaskItem>
   );
-};
+}, compareProps);

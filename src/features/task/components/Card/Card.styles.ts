@@ -13,15 +13,15 @@ export const HeaderTask = styled.div`
   display: flex;
   justify-content: space-between;
   align-content: center;
-  height: 2.2rem;
+  height: auto;
 `;
 export const HeaderLeft = styled.div`
-  .input-title {
-    margin: -5px -5px;
-    height: 1.9rem;
+  .title {
+    height: 2.4rem;
+    display: inline-block;
     font-size: 14px;
-    border: 1px solid ${THEME.token.gray80Color};
-    border-radius: 3px;
+    margin-left: 0.5rem;
+    margin-top: 0.5rem;
   }
 `;
 
@@ -33,7 +33,7 @@ export const HeaderRight = styled.div`
     border-radius: 3px;
     padding: 0.4rem;
     width: 1.5rem;
-    margin-top: -5px;
+    margin-top: 0;
 
     .icon {
       color: ${THEME.token.gray80Color};
@@ -48,6 +48,20 @@ export const HeaderRight = styled.div`
       }
     }
   }
+
+  .btn-save {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    border-radius: 3px;
+    padding: 0.4rem;
+    font-size: 14px;
+    width: 3rem;
+    margin-top: 5px;
+    color: ${THEME.token.white};
+    background-color: ${THEME.token.primaryColor};
+    cursor: pointer;
+  }
 `;
 
 export const FooterTask = styled.div`
@@ -59,6 +73,7 @@ export const FooterTask = styled.div`
 
   .id {
     font-style: italic;
+    margin-left: 0.5rem;
     font-size: ${THEME?.token?.size10};
   }
 `;
@@ -99,4 +114,11 @@ export const SaveButton = styled.button`
   :hover {
     background: ${THEME?.token?.secondaryColor};
   }
+`;
+export const TextEdit = styled.textarea`
+  height: 3.5rem;
+  width: 12rem;
+  border-radius: 3px;
+  border: 1px solid ${THEME.token.gray80Color};
+  margin-bottom: 0.5rem;
 `;

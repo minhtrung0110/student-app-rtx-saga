@@ -1,148 +1,128 @@
-import React, { FC, useCallback, useEffect, useReducer, useState } from 'react';
-import { BoxNewColumn, Container, Lists } from './BoardContent.styles';
-import { ICard, IList } from '../../../../models';
+// Libraries
+import React, { FC, useCallback, useState } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { groupBy, isEmpty } from 'lodash';
-import { cardsReducer, listsReducer } from '../../../../ruducer/reducer';
-import { initialCards, initialLists, reorder } from '../../../../utils/initTask';
-import { Column } from '../Column/Column';
-import uuidv1 from 'uuid/v1';
-import TextArea from 'antd/es/input/TextArea';
-import { BtnCancelStyledTask, BtnOkStyledTask } from '../../../../constants/component-styled';
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
+import TextArea from 'antd/es/input/TextArea';
+
+// Hooks
+import { useAppDispatch, useAppSelector } from 'src/app/hooks';
+
+// Components
+import { Column } from '../Column/Column';
+
+// Actions
+import { projectActions, selectColumnList, selectTaskList } from 'src/features/task/projectSlice';
+
+// Models
+import { DataDnd, DataNewTask, Task, TaskCreate, TaskDnd } from 'src/models';
+
+// Utils
+import { sortArray, updateTaskAfterDND } from 'src/utils/arrayUtils';
+
+// Styles
+import { BoxNewColumn, Container, Lists } from './BoardContent.styles';
+import { BtnCancelStyledTask, BtnOkStyledTask } from 'src/constants/component-styled';
 
 interface BoardContentProps {
-  // Các prop và kiểu dữ liệu tương ứng
+  projectId: string | number;
 }
 
-const BoardContent: FC<BoardContentProps> = (
-  {
-    /* props */
-  },
-) => {
-  const [isOpenNewColForm, setIsOpenNewColForm] = useState(false);
-  const [newColTitle, setNewColTitle] = useState('');
-  const listsFromLs = JSON.parse(localStorage.getItem('lists') || '');
-  const cardsFromLs = JSON.parse(localStorage.getItem('cards') || '');
-  //const bgColorFromLs = ls.get<string>('bgColor');
+const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
+  // State
+  const [isOpenNewColForm, setIsOpenNewColForm] = useState<boolean>(false);
+  const [newColTitle, setNewColTitle] = useState<string>('');
 
-  //const [bgColor, setBgColor] = useState(bgColorFromLs ? bgColorFromLs : 'dodgerblue');
+  // Selector - Dispatch
+  const dispatch = useAppDispatch();
+  const columns = useAppSelector(selectColumnList);
+  const tasks = useAppSelector(selectTaskList);
 
-  const [cards, cardsDispatch] = useReducer(
-    cardsReducer,
-    isEmpty(cardsFromLs) ? initialCards : cardsFromLs,
-  );
+  // Variables
+  const newBoardColumns = [...columns]; // clone array of columns to Sort Column with sort key
+  const listTaskColumns = sortArray(newBoardColumns).map(col => {
+    const array = tasks.filter(task => task.column_id === col._id);
+    console.log('Array', tasks);
+    const newArray = [...array];
 
-  const [lists, listsDispatch] = useReducer(
-    listsReducer,
-    isEmpty(listsFromLs) ? initialLists : listsFromLs,
-  );
+    return { ...col, tasks: array };
+  });
 
-  useEffect(() => {
-    localStorage.setItem('cards', JSON.stringify(cards));
-    localStorage.setItem('lists', JSON.stringify(lists));
-    // ls.set<IList[]>('lists', lists);
-  }, [cards, lists]);
-  // const handleBgColorChange = (color: { hex: string }) => {
-  //   setBgColor(color.hex);
-  //   ls.set<string>('bgColor', color.hex);
-  // };
-
+  // Handle Drag and Drop
   const onDragEnd = useCallback(
     result => {
-      console.log('Result: ', result);
-      // dropped outside the list
-      if (!result.destination) {
-        return;
-      }
-
-      const itemsSplitByListIds = groupBy(cards, (card: any) => {
-        return card.listId;
-      });
-
-      if (result.source.droppableId === result.destination.droppableId) {
-        // Items are in the same list, so just re-order the list array
-        const target = itemsSplitByListIds[result.destination.droppableId];
-        const reordered: any = reorder<ICard>(
-          [...target],
-          result.source.index,
-          result.destination.index,
-        );
-
-        // Get rid of old list and replace with updated one
-        const filteredCards = cards.filter(
-          (card: any) => card.listId !== result.source.droppableId,
-        );
-
-        cardsDispatch({
-          type: 'SET',
-          payload: { newState: [...filteredCards, ...reordered] },
-        });
-      } else {
-        // Items are in different lists, so just change the item's listId
-
-        const removeByIndex = (list: any[], index: number) => [
-          ...list.slice(0, index),
-          ...list.slice(index + 1),
-        ];
-
-        const source = cards.filter((card: ICard) => card.listId === result.source.droppableId);
-        const sourceWithoutDragged = removeByIndex(source, result.source.index);
-
-        const target = cards.filter(
-          (card: ICard) => card.listId === result.destination.droppableId,
-        );
-
-        const itemWithNewId = {
-          ...source[result.source.index],
-          listId: result.destination.droppableId,
-        };
-
-        target.splice(result.destination.index, 0, itemWithNewId);
-
-        const filteredCards = cards.filter(
-          (card: any) =>
-            card.listId !== result.source.droppableId &&
-            card.listId !== result.destination.droppableId,
-        );
-
-        cardsDispatch({
-          type: 'SET',
-          payload: {
-            newState: [...filteredCards, ...sourceWithoutDragged, ...target],
-          },
-        });
-      }
+      updateStateTask(tasks, result.source, result.destination, result.draggableId);
     },
-    [cards],
+    [tasks],
   );
-  const handleCreateNewColumn = e => {
-    listsDispatch({
-      type: 'ADD',
-      payload: {
-        id: uuidv1(),
-        listTitle: e.target.value,
-      },
-    });
+  const updateStateTask = (listTasks, source, destination, id) => {
+    const taskMixture = updateTaskAfterDND(listTasks, destination, source, id);
+    const dnd: TaskDnd = { _id: id, column_id: destination.droppableId, sort: destination.index };
+    const data: DataDnd = {
+      dnd,
+      tasks: taskMixture.tasks,
+      updated: taskMixture.updated,
+    };
+    // console.log('Data Sau DND:', data.tasks);
+    dispatch(projectActions.fetchTaskDragAndDrop(data));
+  };
+
+  // Create New Column
+  const handleCreateNewColumn = async () => {
+    const newColumn = {
+      title: newColTitle,
+      project_id: projectId,
+      status: 1,
+      sort: columns.length,
+    };
+    dispatch(projectActions.addColumn(newColumn));
     setNewColTitle('');
     setIsOpenNewColForm(false);
   };
-  // console.log('List Column', lists);
+
+  // Create New Task
+  const handleCreateCard = useCallback(
+    (task: TaskCreate) => {
+      const data: DataNewTask = {
+        new_task: task,
+        tasks,
+      };
+      dispatch(projectActions.addTask(data));
+      // const response = await taskApi.add(task);
+      //  if (response.status === 200) {
+      //     const listTask = [...tasks, response.data];
+      //     dispatch(projectActions.fetchTaskColumn(listTask));
+      //     return response.data;
+      // }
+    },
+    [tasks],
+  );
+
+  // Update task
+  const handleUpdateTask = (task: Task) => {
+    dispatch(projectActions.updateTask(task));
+  };
+  // Delete Task
+  const handleDeleteTask = (_id: string) => {
+    dispatch(projectActions.deleteTask(_id));
+  };
+
+  //console.log('Cards:', columns);
+  console.log('ListTaskColumn:', listTaskColumns);
   return (
     <Container>
-      {/*<Options handleBgColorChange={handleBgColorChange} />*/}
       <DragDropContext onDragEnd={onDragEnd}>
         <Lists>
-          {lists?.length > 0 &&
-            lists.map((list: IList) => (
+          {listTaskColumns?.length > 0 &&
+            listTaskColumns.map((list: any) => (
               <Column
-                key={list.id}
+                key={list._id}
+                project_id={projectId}
                 list={list}
-                cards={cards.filter((card: ICard) => card.listId === list.id)}
-                cardsDispatch={cardsDispatch}
-                listsDispatch={listsDispatch}
+                cards={list.tasks}
+                onCreate={handleCreateCard}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
               />
-              // <h1>13</h1>
             ))}
           <BoxNewColumn>
             {!isOpenNewColForm && (
@@ -152,7 +132,7 @@ const BoardContent: FC<BoardContentProps> = (
                   setIsOpenNewColForm(true);
                 }}
               >
-                <PlusOutlined className="icon-add" /> Tạo Mới
+                <PlusOutlined className="icon-add" /> Add New Column
               </div>
             )}
             {isOpenNewColForm && (
@@ -167,7 +147,7 @@ const BoardContent: FC<BoardContentProps> = (
                   onKeyDown={event => event.key === 'Enter' && handleCreateNewColumn(event)}
                 />
                 <div className="ft-btn">
-                  <BtnOkStyledTask onClick={handleCreateNewColumn}>Tạo</BtnOkStyledTask>
+                  <BtnOkStyledTask onClick={handleCreateNewColumn}>Add</BtnOkStyledTask>
                   <BtnCancelStyledTask>
                     <CloseOutlined
                       className="cancel-new-column"
