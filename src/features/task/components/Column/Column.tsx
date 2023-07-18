@@ -62,7 +62,7 @@ const compareProps = (prev, next) => {
 export const Column: FC<ColumnProps> = React.memo(
   ({ list, cards, onCreate, onUpdateTask, onDeleteTask, project_id }) => {
     // State
-    const [columnTitle, setColumnTitle] = useState<string>(list._id);
+    const [columnTitle, setColumnTitle] = useState<string>(list.title);
     const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
     const [valueNewCard, setValueNewCard] = useState<string>('');
     const [isAddCard, setIsAddCard] = useState<boolean>(false);

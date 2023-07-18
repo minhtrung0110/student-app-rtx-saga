@@ -1,7 +1,7 @@
 import { UserTask } from './user_task';
 import { Priority } from './priority';
 
-// ICard& IList is used in hook useReducer . In the future, I will delete
+// ICard & IList is used in hook useReducer . In the future, I will delete
 export interface ICard {
   id: string;
   text: string;
