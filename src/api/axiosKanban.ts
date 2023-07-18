@@ -1,15 +1,15 @@
 import axios, { AxiosResponse } from 'axios';
 import { config } from '../config';
 
-const axiosClient = axios.create({
-  baseURL: config.servers.mock_io,
+const axiosKanban = axios.create({
+  baseURL: config.servers.kanban_app,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 // Add a request interceptor
-axiosClient.interceptors.request.use(
+axiosKanban.interceptors.request.use(
   function (config) {
     // Do something before request is sent
     return config;
@@ -21,7 +21,7 @@ axiosClient.interceptors.request.use(
 );
 
 // Add a response interceptor
-axiosClient.interceptors.response.use(
+axiosKanban.interceptors.response.use(
   function (response: AxiosResponse) {
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data
@@ -34,4 +34,4 @@ axiosClient.interceptors.response.use(
   },
 );
 
-export default axiosClient;
+export default axiosKanban;
