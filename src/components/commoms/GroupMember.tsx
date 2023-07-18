@@ -15,14 +15,14 @@ const GroupMember: FC<GroupMemberProps> = ({
   maxCount = 3,
   showCount = 2,
 }) => {
-  const visibleMembers = listMember?.length > 0 ? listMember.slice(0, showCount) : [];
+  const visibleMembers = listMember.length > 0 ? listMember.slice(0, showCount) : [];
   return (
     <div>
       <Avatar.Group maxCount={maxCount} size={size}>
         {listMember.length > 0 &&
           visibleMembers.map(member => (
             <AvatarCustom
-              key={member.id}
+              key={member._id}
               avatar={member.avatar}
               lastName={member.last_name}
               size={size}

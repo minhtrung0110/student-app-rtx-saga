@@ -3,12 +3,12 @@ import { useParams } from 'react-router-dom';
 import { Student } from '../../../models';
 import studentApi from '../../../api/studentApi';
 import { notification } from 'antd';
-import { globalNavigate } from '../../../components/commoms/GlobalHistory';
-import { config } from '../../../config';
 import FormStudent from '../components/FormStudent';
+import { useAppDispatch, useAppSelector } from 'src/app/hooks';
 import TableSkeleton from '../../../components/commoms/Skeleton/TableSkeleton';
 import styled from 'styled-components';
 import { THEME } from '../../../constants';
+import { selectStudentList, studentActions } from '../studentSlice';
 
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
@@ -32,7 +32,8 @@ const FormStudentPage: FC = () => {
       duration,
     });
   };
-
+  const studentList = useAppSelector(selectStudentList);
+  const dispatch = useAppDispatch();
   useEffect(() => {
     if (!studentId) return;
 
@@ -50,6 +51,17 @@ const FormStudentPage: FC = () => {
     })();
   }, [studentId]);
   // console.log('Student Default:', student);
+  const handleUpdateState = (type, data) => {
+    if (type === 'create') {
+      //studentList.push(data);
+      //console.log('List of students Updated:', studentList);
+      //   dispatch(studentActions.fetchStudentListSuccess(studentList));
+    } else {
+      const newStudentList = studentList.map(student => (student.id === data.id ? data : student));
+      console.log('List of students Updated:', newStudentList);
+      dispatch(studentActions.fetchStudentListSuccess(newStudentList));
+    }
+  };
   const handleFormSubmit = async (data: Student) => {
     //console.log('Submit:', data, isEdit);
     let isSuccess = false;
@@ -57,9 +69,11 @@ const FormStudentPage: FC = () => {
     try {
       if (isEdit) {
         await studentApi.update({ id: studentId, ...data });
+        handleUpdateState('update', { id: studentId, ...data });
         openNotificationWithIcon('success', 'Update Student Success', 'Data is saved', 1.4);
       } else {
         await studentApi.add(data);
+        handleUpdateState('create', { id: 10, ...data });
         openNotificationWithIcon('success', 'Create Student Success', 'Data is saved', 1.4);
       }
       isSuccess = true;
@@ -73,7 +87,7 @@ const FormStudentPage: FC = () => {
     }
 
     if (isSuccess) {
-      globalNavigate(config.routes.list_student);
+      //globalNavigate(config.routes.list_student);
     }
   };
   return (
