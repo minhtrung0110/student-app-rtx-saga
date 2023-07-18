@@ -16,7 +16,7 @@ const BoxAvatar = styled.div`
 `;
 const AvatarCustom: React.FC<AvatarCustomProps> = ({
   avatar = 'http://',
-  lastName = 'A',
+  lastName = 'Unsigned',
   size = 'large',
 }) => {
   const [show, setShow] = useState<boolean>(false);
