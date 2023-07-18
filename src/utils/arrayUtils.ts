@@ -1,92 +1,38 @@
-export function sortArray(board_columns) {
-  board_columns.sort((a, b) => {
-    return a.sort - b.sort;
-  });
-
-  return board_columns;
-}
-
-export const updateTaskAfterDNDV2 = (listTasks, id, newColumnID, newSort, sourceColumnID) => {
-  if (newColumnID === sourceColumnID) {
-    // in Column
-    let column = findArrayTasksByColumnID(listTasks, newColumnID);
-    if (newSort === 0) {
-      column = column.map(item => ({ ...item, sort: item.sort + 1 }));
-      column.unshift();
-    } else if (newSort) {
-    }
-  } else {
-    // out Column
-    let sourceColumn = findArrayTasksByColumnID(listTasks, sourceColumnID);
-    let destinationColumn = findArrayTasksByColumnID(listTasks, newColumnID);
-    const currentTask = sourceColumn.find(item => item._id === id);
-    if (newSort === 0) {
-      // update Source column
-      // sourceColumn = removeElementAtIndex(sourceColumn);
-      // sourceColumn = sourceColumn
-      //   .filter(element => element._id !== currentTask._id)
-      //   .map((element, index, array) => {
-      //     if (index < array.length - 1 && element.sort > array[index + 1].sort) {
-      //       return { ...element, sort: element.sort - 1 };
-      //     }
-      //     return element;
-      //   });
-      // update New Column
-      destinationColumn = destinationColumn.map(item => ({ ...item, sort: item.sort + 1 }));
-      destinationColumn.unshift({ ...currentTask, sort: 0 });
-      console.log('Current Task: ', currentTask);
-      console.log('Column Current: ', sourceColumn);
-      console.log('Destination: ', destinationColumn);
-    } else {
-      // update New Column
-      destinationColumn = addElementWithSort(destinationColumn, currentTask);
-      // update Source column
-      sourceColumn = removeElementWithSort(sourceColumn, currentTask._id);
-      console.log('Current Task: ', currentTask);
-      console.log('Column Current: ', sourceColumn);
-      console.log('Destination: ', destinationColumn);
-    }
-  }
-
-  // set Vi Tri
-
-  // Update Vitri các task con lai
-  return listTasks.map(item =>
-    item._id === id
-      ? {
-          ...item,
-          sort: newSort,
-          column_id: newColumnID,
-        }
-      : item,
-  );
-};
-const findArrayTasksByColumnID = (listTasks, columnID) => {
-  return listTasks.filter(item => item.column_id === columnID);
-};
-
+/**
+ * Updates the task after drag and drop operation.
+ *
+ * @param {Array} listTasks - The list of tasks.
+ * @param {Object} destination - The destination object containing droppableId and index.
+ * @param {Object} source - The source object containing droppableId and index.
+ * @param {string} id - The ID of the task being dragged.
+ * @returns {Object} - An object containing the updated list of tasks and the updated tasks.
+ */
 export const updateTaskAfterDND = (listTasks, destination, source, id) => {
-  let sourceColumn = findArrayTasksByColumnID(listTasks, source.droppableId);
+  let sourceColumn = filtersTasksByColumnID(listTasks, source.droppableId);
+  const currentTask = sourceColumn.find(item => item._id === id);
 
   if (source.droppableId !== destination.droppableId) {
-    let destinationColumn = findArrayTasksByColumnID(listTasks, destination.droppableId);
+    // different Column
+    let destinationColumn = filtersTasksByColumnID(listTasks, destination.droppableId);
     const restColumns = listTasks.filter(
       item => item.column_id !== destination.droppableId && item.column_id !== source.droppableId,
     );
-
-    const currentTask = sourceColumn.find(item => item._id === id);
+    // remove Task in source col
     sourceColumn = removeElementAtIndex(sourceColumn, source.index);
+    // arrange Task in source col
     sourceColumn = sourceColumn.map((item, index) => ({ ...item, sort: index }));
 
     if (destination.index === 0) {
+      // add Task in front of destination
       destinationColumn.unshift({ ...currentTask, column_id: destination.droppableId });
+      // arrange Task in destination col
       destinationColumn = destinationColumn.map((item, index) => ({ ...item, sort: index }));
     } else {
       destinationColumn = addElementAtIndex(destinationColumn, destination.index, {
         ...currentTask,
         column_id: destination.droppableId,
       });
-
+      // arrange Task in destination col
       destinationColumn = destinationColumn.map((item, index) => ({ ...item, sort: index }));
     }
     const updatedTask: any[] = [...sourceColumn, ...destinationColumn].map(t => ({
@@ -99,15 +45,19 @@ export const updateTaskAfterDND = (listTasks, destination, source, id) => {
       updated: updatedTask,
     };
   } else {
+    // same Column
     const restColumns = listTasks.filter(item => item.column_id !== source.droppableId);
-    const currentTask = sourceColumn.find(item => item._id === id);
+    // move Task in new position in source col
     sourceColumn = moveElement(sourceColumn, currentTask, destination.index);
+    // arrange Task in source col
     sourceColumn = sourceColumn.map((item, index) => ({ ...item, sort: index }));
+
     const updatedTask: any[] = sourceColumn.map(t => ({
       _id: t._id,
       column_id: t.column_id,
       sort: t.sort,
     }));
+
     return {
       tasks: [...restColumns, ...sourceColumn],
       updated: updatedTask,
@@ -115,70 +65,77 @@ export const updateTaskAfterDND = (listTasks, destination, source, id) => {
   }
 };
 
-function addElementWithSort(array, newElement) {
-  const maxSort = Math.max(...array.map(element => element.sort));
-  const newElementSort = maxSort + 1;
-
-  const newArray = array.map(element => {
-    if (element.sort >= newElementSort) {
-      return { ...element, sort: element.sort + 1 };
-    }
-    return element;
+/**
+ * Sorts an array of board columns based on the 'sort' property.
+ *
+ * @param {Array} board_columns - The array of board columns to be sorted.
+ * @returns {Array} - The sorted array of board columns.
+ */
+export function sortArray(board_columns) {
+  board_columns.sort((a, b) => {
+    return a.sort - b.sort;
   });
-
-  newArray.splice(newElementSort - 1, 0, { ...newElement, sort: newElementSort });
-
-  return newArray;
+  return board_columns;
 }
 
-function removeElementWithSort(array, elementId) {
-  const elementIndex = array.findIndex(element => element.id === elementId);
-  if (elementIndex === -1) {
-    // Phần tử không tồn tại trong mảng
-    return array;
-  }
+/**
+ * Filters tasks by column ID in an array.
+ *
+ * @param listTasks
+ * @param {string} columnID - The column ID to filter tasks by.
+ * @returns {Array} - The filtered array of tasks.
+ */
+const filtersTasksByColumnID = (listTasks, columnID) => {
+  return listTasks.filter(item => item.column_id === columnID);
+};
 
-  return array
-    .filter(element => element.id !== elementId)
-    .map(element => {
-      if (element.sort > array[elementIndex].sort) {
-        // Giảm giá trị sort cho các phần tử có sort lớn hơn
-        return { ...element, sort: element.sort - 1 };
-      }
-      return element;
-    });
-}
-
+/**
+ * Removes an element from an array at the specified index.
+ *
+ * @param {Array} array - The array to remove the element from.
+ * @param {number} index - The index of the element to remove.
+ * @returns {Array} - The array with the element removed.
+ */
 function removeElementAtIndex(array, index) {
   if (index < 0 || index >= array.length) {
-    // Index không hợp lệ
     return array;
   }
-  array.splice(index, 1); // Xóa phần tử tại index
-
+  array.splice(index, 1);
   return array;
 }
 
+/**
+ * Adds an element to an array at the specified index.
+ *
+ * @param {Array} array - The array to add the element to.
+ * @param {number} index - The index at which to add the element.
+ * @param {*} element - The element to add.
+ * @returns {Array} - The array with the element added.
+ */
 function addElementAtIndex(array, index, element) {
   if (index < 0 || index > array.length) {
-    // Index không hợp lệ
     return array;
   }
-
-  array.splice(index, 0, element); // Thêm phần tử vào index
-
+  array.splice(index, 0, element);
   return array;
 }
 
+/**
+ * Moves an element within an array to a new index.
+ *
+ * @param {Array} array - The array containing the element.
+ * @param {*} element - The element to move.
+ * @param {number} newIndex - The new index for the element.
+ * @returns {Array} - The array with the element moved to the new index.
+ */
 function moveElement(array, element, newIndex) {
   const currentIndex = array.indexOf(element);
   if (currentIndex === -1 || newIndex < 0 || newIndex >= array.length) {
-    // Phần tử không tồn tại hoặc vị trí mới không hợp lệ
     return array;
   }
-  const newArray = [...array]; // Tạo một bản sao của mảng để không ảnh hưởng đến mảng gốc
-  newArray.splice(currentIndex, 1); // Xóa phần tử cũ từ mảng
-  newArray.splice(newIndex, 0, element); // Thêm phần tử vào vị trí mới
+  const newArray = [...array];
+  newArray.splice(currentIndex, 1);
+  newArray.splice(newIndex, 0, element);
 
   return newArray;
 }
