@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 // Components
 import TableSkeleton from 'src/components/commoms/Skeleton/TableSkeleton';
-import FormStudent from 'src/features/student/components/FormStudent';
+import FormStudent from 'src/features/student/components/FormStudent/FormStudent';
 
 // Models
 import { Student, StudentType } from 'src/models';
