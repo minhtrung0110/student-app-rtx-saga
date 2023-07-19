@@ -6,5 +6,5 @@ import projectSaga from '../features/task/projectSaga';
 
 export default function* rootSaga() {
   console.log('Root Saga');
-  yield all([counterSaga(), authSaga(), studentSaga(), projectSaga()]);
+  yield all([projectSaga(), counterSaga(), authSaga(), studentSaga()]);
 }

@@ -3,8 +3,8 @@ import axiosKanban from './axiosKanban';
 
 const prefix = '/projects';
 const projectApi = {
-  getAll(params: ListParams): Promise<ListResponse<ProjectTask>> {
-    const url = `${prefix}/64ad374466cc6c557758eb`;
+  getAll(params: ListParams): Promise<ListResponse<Project>> {
+    const url = `${prefix}/64ad374466cc6c557758eb9c`;
     return axiosKanban.get(url);
     // return axiosKanban.get(prefix, { params });
   },

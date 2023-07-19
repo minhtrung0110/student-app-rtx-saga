@@ -63,6 +63,8 @@ const projectSlice = createSlice({
     },
 
     fetchProjectList(state, action: PayloadAction<ListParams>) {
+      console.log({ action });
+
       state.loading = true;
       state.filter = { _project_id: 'a43fn5ah' };
     },

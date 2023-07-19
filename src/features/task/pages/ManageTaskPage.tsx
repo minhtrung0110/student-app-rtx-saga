@@ -2,7 +2,6 @@
 import React, { FC, useEffect } from 'react';
 import styled from 'styled-components';
 import { notification } from 'antd';
-import { isEmpty } from 'lodash';
 
 // Hooks
 import { useAppDispatch, useAppSelector } from 'src/app/hooks';
@@ -73,12 +72,9 @@ const ManageTaskPage: FC = () => {
   // Get Data Project
   useEffect(() => {
     dispatch(projectActions.fetchProjectList(filter));
-  }, [dispatch]);
+  }, []);
 
   // Notification
-  useEffect(() => {
-    if (!isEmpty(error)) openNotificationWithIcon('error', error, 'Error', 1.6);
-  }, [error]);
 
   return (
     <TaskPage style={{ backgroundImage: `url(${backgroundImage})` }}>

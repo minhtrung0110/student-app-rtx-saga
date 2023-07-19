@@ -5,6 +5,7 @@ import { isEqual } from 'lodash';
 import { Input } from 'antd';
 import { CloseOutlined, DeleteOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
+import { v4 as uuidv4 } from 'uuid';
 
 // Models
 import { Task, TaskCreate } from 'src/models';
@@ -104,6 +105,7 @@ export const Column: FC<ColumnProps> = React.memo(
     const handleCreateTask = (value: string) => {
       if (value !== '') {
         const newCard = {
+          _id: uuidv4(),
           title: value,
           project_id: project_id,
           column_id: list._id,
