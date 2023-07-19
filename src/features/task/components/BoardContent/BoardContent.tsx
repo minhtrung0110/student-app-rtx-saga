@@ -107,7 +107,7 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
   };
 
   //console.log('Cards:', columns);
-  console.log('ListTaskColumn:', listTaskColumns);
+  console.log('ListTask:', tasks);
   return (
     <Container>
       <DragDropContext onDragEnd={onDragEnd}>

@@ -7,6 +7,7 @@ import {
   ApiResponse,
   DataDnd,
   DataNewTask,
+  IColumn,
   IColumnCreate,
   IColumnUpdate,
   ListParams,
@@ -20,13 +21,25 @@ import { projectActions } from './projectSlice';
 // API
 import taskApi from 'src/api/taskApi';
 import columnApi from 'src/api/columnApi';
-import projectApi from 'src/api/projectApi';
+import projectApi from '../../api/projectApi';
 
 // Project
 function* fetchProjectData(action: PayloadAction<ListParams>) {
   try {
-    const response: ApiResponse<ProjectTask> = yield call(projectApi.getAll, action.payload);
-    yield put(projectActions.fetchProjectData(response.data[0]));
+    const project: ApiResponse<ProjectTask> = yield call(projectApi.getAll, action.payload);
+    const columns: ApiResponse<IColumn[]> = yield call(columnApi.getAll, action.payload);
+    const tasks: ApiResponse<Task[]> = yield call(taskApi.getAll, action.payload);
+
+    const data: ProjectTask = {
+      _id: project.data._id,
+      name: project.data.name,
+      description: project.data.description,
+      status: project.data.status,
+      board_columns: columns.data as IColumn[],
+      tasks: tasks.data as Task[],
+    };
+
+    yield put(projectActions.fetchProjectData(data));
   } catch (error) {
     yield put(projectActions.fetchError('Get Data Project Failed'));
   }
@@ -94,15 +107,15 @@ function* fetchTaskDragAndDrop(action: PayloadAction<DataDnd>) {
 
 function* createTask(action: PayloadAction<DataNewTask>) {
   try {
+    const newListTasks = [...action.payload.tasks, action.payload.new_task];
+    // add tasks to global state
+    yield put(projectActions.fetchListTasksChange(newListTasks));
     // call api create task
     const response = yield call(taskApi.add, action.payload.new_task);
 
-    if (response.status === 200) {
-      const newListTasks = [...action.payload.tasks, response.data];
-      // add tasks to global state
-      yield put(projectActions.fetchListTasksChange(newListTasks));
-    } // notify if has error
-    else yield put(projectActions.fetchError('Create Task Fail'));
+    if (response.status !== 200)
+      // notify if has error
+      yield put(projectActions.fetchError('Create Task Fail'));
 
     // call api get all tasks instance
     const result = yield call(taskApi.getAll, action.payload);
@@ -123,6 +136,7 @@ function* updateTask(action: PayloadAction<Task>) {
 
     // call api get all tasks instance
     const result = yield call(taskApi.getAll, action.payload);
+    console.log('Edit result:', result);
     // set list tasks instance to global state
     yield put(projectActions.fetchListTasksChange(result.data));
   } catch (error) {

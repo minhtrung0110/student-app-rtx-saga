@@ -3,7 +3,7 @@ import React, { FC, useState } from 'react';
 import { isEmpty, isEqual } from 'lodash';
 import { DeleteOutlined, EditOutlined, EllipsisOutlined } from '@ant-design/icons';
 
-//Styles
+// Styles
 import {
   FooterTask,
   HeaderLeft,
