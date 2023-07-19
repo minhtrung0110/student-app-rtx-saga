@@ -1,15 +1,22 @@
+// Libraries
 import React, { FC, useState } from 'react';
 import { Button, Space, Table, Tag, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { DataTableStudentType, Student } from 'src/models';
 import styled from 'styled-components';
-import AvatarCustom from '../../../components/commoms/AvatarCustom';
-import { globalNavigate } from '../../../components/commoms/GlobalHistory';
-import { config } from '../../../config';
-import ConfirmModal from '../../../components/commoms/ConfirmModal';
-import MailLink from '../../../components/commoms/MailLink';
-import { THEME } from '../../../constants';
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
+
+// Components
+import AvatarCustom from 'src/components/commoms/AvatarCustom';
+import ConfirmModal from 'src/components/commoms/ConfirmModal';
+import MailLink from 'src/components/commoms/MailLink';
+
+// Models
+import { DataTableStudentType, Student } from 'src/models';
+
+// Constants
+import { THEME } from 'src/constants';
+import { globalNavigate } from 'src/components/commoms/GlobalHistory';
+import { config } from 'src/config';
 
 interface TableStudentProps {
   listStudent: Student[];

@@ -28,14 +28,14 @@ const AdminLayout: FC<AdminLayoutProps> = ({ slot }) => {
 
   const listNavItems = [
     getItem(
-      <NavLink to={config.routes.list_student}>Học Viên</NavLink>,
-      config.routes.list_student,
-      <UnorderedListOutlined />,
-    ),
-    getItem(
       <NavLink to={config.routes.tasks}>Công Viêc</NavLink>,
       config.routes.tasks,
       <SolutionOutlined />,
+    ),
+    getItem(
+      <NavLink to={config.routes.list_student}>Học Viên</NavLink>,
+      config.routes.list_student,
+      <UnorderedListOutlined />,
     ),
   ];
 

@@ -6,7 +6,6 @@ import LoginPage from './features/auth/pages/LoginPage';
 import { PrivateRoute } from './components/commoms';
 import AdminLayout from './components/Layout/AdminLayout';
 import ListStudentPage from './features/student/pages/ListStudentPage';
-import Dashboard from './features/dashboard/pages/Dashboard';
 import FormStudentPage from './features/student/pages/FormStudentPage';
 import ManageTaskPage from './features/task/pages/ManageTaskPage';
 
@@ -16,7 +15,6 @@ function App() {
       <Route path={config.routes.login} element={<LoginPage />} />
 
       <Route element={<PrivateRoute />}>
-        <Route path={config.routes.home} element={<AdminLayout slot={<Dashboard />} />} />
         <Route
           path={config.routes.list_student}
           element={<AdminLayout slot={<ListStudentPage />} />}

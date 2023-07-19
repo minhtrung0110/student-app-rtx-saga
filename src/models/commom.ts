@@ -26,7 +26,6 @@ export interface ListParams {
 }
 
 export interface RouteConfig {
-  home: string;
   login: string;
   list_student: string;
   add_student: string;

@@ -1,17 +1,24 @@
+// Libraries
 import React, { FC, useEffect } from 'react';
+import styled from 'styled-components';
+
+// Components
+import TableStudent from 'src/features/student/components/TableStudent';
+import FilterStudent from 'src/features/student/components/FilterStudent/FilterStudent';
+import TableSkeleton from 'src/components/commoms/Skeleton/TableSkeleton';
+
+// Models
+import { ListParams } from 'src/models';
+
+// Apis
+// Hook - Actions
 import {
   selectStudentFilter,
   selectStudentList,
   selectStudentLoading,
   studentActions,
-} from '../studentSlice';
+} from 'src/features/student/studentSlice';
 import { useAppDispatch, useAppSelector } from 'src/app/hooks';
-import TableStudent from '../components/TableStudent';
-import FilterStudent from '../components/FilterStudent/FilterStudent';
-import TableSkeleton from 'src/components/commoms/Skeleton/TableSkeleton';
-import { ListParams } from 'src/models';
-import studentApi from 'src/api/studentApi';
-import styled from 'styled-components';
 
 const ListPageStyled = styled.div`
   padding: 24px;
@@ -20,7 +27,6 @@ const ListPageStyled = styled.div`
 const ListStudentPage: FC = () => {
   const dispatch = useAppDispatch();
   const studentList = useAppSelector(selectStudentList);
-  //  const pagination = useAppSelector(selectStudentPagination);
   const filter = useAppSelector(selectStudentFilter);
   const loading = useAppSelector(selectStudentLoading);
 
@@ -33,8 +39,7 @@ const ListStudentPage: FC = () => {
   };
   const handleDeleteStudent = async (id: string | number | boolean) => {
     try {
-      await studentApi.remove(id);
-      updateState(id);
+      dispatch(studentActions.removeStudent(id));
     } catch (err) {}
   };
   const updateState = id => {
@@ -43,6 +48,7 @@ const ListStudentPage: FC = () => {
     dispatch(studentActions.fetchStudentListSuccess(newStudentList));
   };
   console.log('Filter:', filter);
+
   return (
     <ListPageStyled className={'student-page'}>
       <div className={'student-page-header'}>

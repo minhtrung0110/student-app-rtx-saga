@@ -13,3 +13,18 @@ export interface Student {
   createdAt?: number;
   updatedAt?: number;
 }
+
+export type StudentType = Pick<
+  Student,
+  | 'first_name'
+  | 'last_name'
+  | 'birth_day'
+  | 'address'
+  | 'avatar'
+  | 'phone'
+  | 'mail'
+  | 'gender'
+  | 'status'
+>[];
+
+export type StudentTypeR = Pick<Student, 'id'>[];

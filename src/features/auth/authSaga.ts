@@ -17,7 +17,7 @@ function* handleLogin(payload: LoginPayload) {
       }),
     );
     // redirect to admin page
-    globalNavigate(config.routes.home);
+    globalNavigate(config.routes.tasks);
   } catch (error) {
     yield put(authActions.loginFailed('failed to login'));
   }
