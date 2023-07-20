@@ -19,15 +19,15 @@ export function useDataQueries() {
   const queryColumns = useQuery({
     queryKey: ['columns'],
     queryFn: () => handleGetListColumns(),
-    cacheTime: 6 * 1000,
-    staleTime: 5 * 1000,
+    cacheTime: 15 * 1000,
+    staleTime: 10 * 1000,
   });
 
   const queryTasks = useQuery({
     queryKey: ['tasks'],
     queryFn: () => handleGetListTasks(),
-    cacheTime: 6 * 1000,
-    staleTime: 5 * 1000,
+    cacheTime: 15 * 1000,
+    staleTime: 10 * 1000,
   });
 
   return {
