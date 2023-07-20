@@ -85,6 +85,7 @@ const FormStudent: FC<FormStudentProps> = ({ dataStudent, onSubmit, type = 'crea
   const handleCancel = () => {
     globalNavigate(config.routes.list_student);
   };
+
   const handleFormSubmit = async data => {
     const newStudent = {
       first_name: data?.first_name,

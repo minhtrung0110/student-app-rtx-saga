@@ -19,9 +19,10 @@ import { THEME } from 'src/constants';
 import backgroundImage from 'src/asset/images/backgroundTask01.jpg';
 
 // Components
-import BoardContent from '../components/BoardContent/BoardContent';
-import HeaderBarTask from '../components/HeaderBar/HeaderBarTask';
-import BoardBarTask from '../components/BoardBar/BoardBarTask';
+import BoardContent from 'src/features/task/components/BoardContent/BoardContent';
+import HeaderBarTask from 'src/features/task/components/HeaderBar/HeaderBarTask';
+import BoardBarTask from 'src/features/task/components/BoardBar/BoardBarTask';
+import { useQuery } from '@tanstack/react-query';
 
 const TaskPage = styled.div`
   height: 1400px;
@@ -75,6 +76,8 @@ const ManageTaskPage: FC = () => {
   }, []);
 
   // Notification
+
+  const projectQuery = useQuery();
 
   return (
     <TaskPage style={{ backgroundImage: `url(${backgroundImage})` }}>

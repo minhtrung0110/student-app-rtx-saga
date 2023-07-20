@@ -4,19 +4,26 @@ import { Provider } from 'react-redux';
 import { store } from './app/store';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 import { GlobalHistory } from './components/commoms/GlobalHistory';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
+// Create a client
+const queryClient = new QueryClient();
 
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <GlobalHistory />
       <Provider store={store}>
-        <App />
+        <QueryClientProvider client={queryClient}>
+          <App />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
       </Provider>
     </BrowserRouter>
   </React.StrictMode>,
