@@ -72,10 +72,15 @@ export const updateTaskAfterDND = (listTasks, destination, source, id) => {
  * @returns {Array} - The sorted array of board columns.
  */
 export function sortArray(board_columns) {
-  board_columns.sort((a, b) => {
+  if (!Array.isArray(board_columns)) {
+    return []; // hoặc xử lý theo yêu cầu của bạn khi `board_columns` không phải là mảng
+  }
+
+  const columns = [...board_columns];
+  columns.sort((a, b) => {
     return a.sort - b.sort;
   });
-  return board_columns;
+  return columns;
 }
 
 /**

@@ -1,5 +1,5 @@
 // Libraries
-import React, { FC, useEffect } from 'react';
+import React, { FC } from 'react';
 import styled from 'styled-components';
 import { notification } from 'antd';
 
@@ -8,7 +8,6 @@ import { useAppDispatch, useAppSelector } from 'src/app/hooks';
 
 // Actions
 import {
-  projectActions,
   selectProject,
   selectProjectError,
   selectProjectFilter,
@@ -23,6 +22,8 @@ import BoardContent from 'src/features/task/components/BoardContent/BoardContent
 import HeaderBarTask from 'src/features/task/components/HeaderBar/HeaderBarTask';
 import BoardBarTask from 'src/features/task/components/BoardBar/BoardBarTask';
 import { useQuery } from '@tanstack/react-query';
+import projectApi from '../../../api/projectApi';
+import { PROJECT_ID } from '../../../constants/common';
 
 const TaskPage = styled.div`
   height: 1400px;
@@ -71,20 +72,21 @@ const ManageTaskPage: FC = () => {
   };
 
   // Get Data Project
-  useEffect(() => {
-    dispatch(projectActions.fetchProjectList(filter));
-  }, []);
+  const { data, isLoading, isFetching, isError } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => projectApi.getById(PROJECT_ID),
+    cacheTime: 6 * 1000,
+    staleTime: 5 * 1000,
+  });
 
   // Notification
-
-  const projectQuery = useQuery();
 
   return (
     <TaskPage style={{ backgroundImage: `url(${backgroundImage})` }}>
       {contextHolder}
       <HeaderBarTask />
-      <BoardBarTask name={!!project ? project.name : ''} />
-      <BoardContent projectId={!!project ? project._id : ''} />
+      <BoardBarTask name={!!data?.data ? data.data.name : ''} />
+      <BoardContent projectId={!!data?.data ? data?.data._id : ''} />
     </TaskPage>
   );
 };

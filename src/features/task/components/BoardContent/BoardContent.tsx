@@ -5,16 +5,17 @@ import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
 
 // Hooks
-import { useAppDispatch, useAppSelector } from 'src/app/hooks';
+import { useAppDispatch } from 'src/app/hooks';
+import { useDataQueries } from 'src/features/task/projectQuery';
 
 // Components
 import { Column } from 'src/features/task/components/Column/Column';
 
 // Actions
-import { projectActions, selectColumnList, selectTaskList } from 'src/features/task/projectSlice';
+import { projectActions } from 'src/features/task/projectSlice';
 
 // Models
-import { DataDnd, DataNewTask, Task, TaskCreate, TaskDnd } from 'src/models';
+import { DataDnd, DataNewTask, IColumnCreate, Task, TaskCreate, TaskDnd } from 'src/models';
 
 // Utils
 import { sortArray, updateTaskAfterDND } from 'src/utils/arrayUtils';
@@ -22,38 +23,41 @@ import { sortArray, updateTaskAfterDND } from 'src/utils/arrayUtils';
 // Styles
 import { BoxNewColumn, Container, Lists } from './BoardContent.styles';
 import { BtnCancelStyledTask, BtnOkStyledTask } from 'src/constants/component-styled';
+import { useMutation } from '@tanstack/react-query';
+import columnApi from '../../../../api/columnApi';
 
 interface BoardContentProps {
   projectId: string | number;
 }
 
 const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
+  // Queries
+  const query = useDataQueries();
+  const createColumnAction = useMutation({
+    mutationFn: (body: IColumnCreate) => {
+      return columnApi.add(body);
+    },
+  });
   // State
   const [isOpenNewColForm, setIsOpenNewColForm] = useState<boolean>(false);
   const [newColTitle, setNewColTitle] = useState<string>('');
 
   // Selector - Dispatch
   const dispatch = useAppDispatch();
-  const columns = useAppSelector(selectColumnList);
-  const tasks = useAppSelector(selectTaskList);
 
   // Variables
-  const newBoardColumns = [...columns]; // clone array of columns to Sort Column with sort key
-  const listTaskColumns = sortArray(newBoardColumns).map(col => {
-    const array = tasks.filter(task => task.column_id === col._id);
-    // console.log('Array', tasks);
+  console.log('Columns: ', sortArray(query.queryColumns?.data));
+  const listTaskColumns = sortArray(query.queryColumns?.data).map(col => {
+    const array = (query.queryTasks?.data || []).filter(task => task.column_id === col._id);
     const newArray = [...array];
 
     return { ...col, tasks: sortArray(newArray) };
   });
 
   // Handle Drag and Drop
-  const onDragEnd = useCallback(
-    result => {
-      updateStateTask(tasks, result.source, result.destination, result.draggableId);
-    },
-    [tasks],
-  );
+  const onDragEnd = useCallback(result => {
+    updateStateTask([], result.source, result.destination, result.draggableId);
+  }, []);
   const updateStateTask = (listTasks, source, destination, id) => {
     const taskMixture = updateTaskAfterDND(listTasks, destination, source, id);
     const dnd: TaskDnd = { _id: id, column_id: destination.droppableId, sort: destination.index };
@@ -72,30 +76,33 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
       title: newColTitle,
       project_id: projectId,
       status: 1,
-      sort: columns.length,
+      sort: Number(query.queryColumns?.data?.length),
     };
-    dispatch(projectActions.addColumn(newColumn));
+    // add
+    createColumnAction.mutate(newColumn, {
+      onSuccess: () => {
+        query.queryColumns.refetch();
+      },
+    });
+    /// dispatch(projectActions.addColumn(newColumn));
     setNewColTitle('');
     setIsOpenNewColForm(false);
   };
 
   // Create New Task
-  const handleCreateCard = useCallback(
-    (task: TaskCreate) => {
-      const data: DataNewTask = {
-        new_task: task,
-        tasks,
-      };
-      dispatch(projectActions.addTask(data));
-      // const response = await taskApi.add(task);
-      //  if (response.status === 200) {
-      //     const listTask = [...tasks, response.data];
-      //     dispatch(projectActions.fetchTaskColumn(listTask));
-      //     return response.data;
-      // }
-    },
-    [tasks],
-  );
+  const handleCreateCard = useCallback((task: TaskCreate) => {
+    const data: DataNewTask = {
+      new_task: task,
+      tasks: [],
+    };
+    dispatch(projectActions.addTask(data));
+    // const response = await taskApi.add(task);
+    //  if (response.status === 200) {
+    //     const listTask = [...tasks, response.data];
+    //     dispatch(projectActions.fetchTaskColumn(listTask));
+    //     return response.data;
+    // }
+  }, []);
 
   // Update task
   const handleUpdateTask = (task: Task) => {
@@ -107,7 +114,8 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
   };
 
   //console.log('Cards:', columns);
-  console.log('ListTask:', tasks);
+  //
+  console.log('ListTask:', listTaskColumns);
   return (
     <Container>
       <DragDropContext onDragEnd={onDragEnd}>

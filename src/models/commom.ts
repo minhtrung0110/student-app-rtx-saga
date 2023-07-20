@@ -51,6 +51,12 @@ export interface DataTableStudentType {
   status: ReactNode;
 }
 
+export interface ApiResponse<T> {
+  status: number;
+  message: string;
+  data: T;
+}
+
 export class ApiResponse<T> {
   status: number;
   message: string;

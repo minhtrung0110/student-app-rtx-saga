@@ -3,8 +3,9 @@ import axiosKanban from './axiosKanban';
 
 const prefix = '/tasks';
 const taskApi = {
-  getAll(params): Promise<ListResponse<Task>> {
-    return axiosKanban.get(prefix);
+  async getAll(params: any) {
+    const response: ApiResponse<Task[]> = await axiosKanban.get(prefix);
+    return new ApiResponse(response.status, response.message, response.data);
   },
 
   getById(id: string): Promise<ListResponse<Task>> {
