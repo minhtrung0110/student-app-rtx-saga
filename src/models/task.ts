@@ -27,14 +27,10 @@ export interface Task {
   status: number;
 }
 
-export interface TaskCreate extends Task {
-  project_id: string;
-  column_id: string | number;
-  title: string;
-  priority: Priority;
-  sort: number;
-  status: number;
-}
+export type TaskCreate = Omit<
+  Task,
+  'assignee_user' | 'report_user' | 'description' | 'estimate_point'
+>;
 
 export interface TaskDnd {
   _id: string;

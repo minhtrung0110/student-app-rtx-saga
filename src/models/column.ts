@@ -6,13 +6,8 @@ export interface IColumn {
   status?: number;
 }
 
-export interface IColumnUpdate {
-  _id: string;
-  title?: string;
-  project_id: string | number;
-}
-
 export type IColumnCreate = Omit<IColumn, '_id'>;
+export type IColumnUpdate = Omit<IColumn, '_id' | 'status' | 'sort'>;
 
 export interface DataNewColumn {
   new_column: IColumnCreate;
