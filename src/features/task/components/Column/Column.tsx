@@ -8,7 +8,7 @@ import TextArea from 'antd/es/input/TextArea';
 import { v4 as uuidv4 } from 'uuid';
 
 // Models
-import { Task, TaskCreate } from 'src/models';
+import { IColumn, Task, TaskCreate } from 'src/models';
 
 // Styles
 import { AreaAddTask, ContainerColumn, Footer, Header, MoreButton } from './Column.styles';
@@ -20,8 +20,8 @@ import { StrictModeDroppable } from 'src/components/commoms/StrictModeDroppable'
 import ConfirmModal from 'src/components/commoms/ConfirmModal';
 
 // Hook and Actions
-import { projectActions } from 'src/features/task/projectSlice';
-import { useAppDispatch } from 'src/app/hooks';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import columnApi from '../../../../api/columnApi';
 
 // Variables
 const getItemStyle = (isDragging: boolean, draggableStyle: any) => ({
@@ -62,22 +62,34 @@ const compareProps = (prev, next) => {
 
 export const Column: FC<ColumnProps> = React.memo(
   ({ list, cards, onCreate, onUpdateTask, onDeleteTask, project_id }) => {
+    // Queries
+    const queryClient = useQueryClient();
+    const updateColumnAction = useMutation({
+      mutationFn: (body: IColumn) => {
+        return columnApi.update(body);
+      },
+      onSuccess: res => {
+        const col = { _id: res.data._id, title: res.data.title, sort: res.data.sort };
+        // console.log('Data', col);
+        // queryClient.setQueryData(['columns', res.data._id], res.data);
+        queryClient.invalidateQueries({ queryKey: ['columns'], exact: true });
+      },
+    });
+    const deleteColumnAction = useMutation({
+      mutationFn: (id: string) => {
+        return columnApi.remove(id);
+      },
+      onSuccess: response => {
+        queryClient.invalidateQueries({ queryKey: ['columns'], exact: true });
+      },
+    });
     // State
-    const [columnTitle, setColumnTitle] = useState<string>(list.title);
+    const [columnTitle, setColumnTitle] = useState<string>(list._id);
     const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
     const [valueNewCard, setValueNewCard] = useState<string>('');
     const [isAddCard, setIsAddCard] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(false);
-    const dispatch = useAppDispatch();
-    const handleColumnTitleBlur = e => {
-      // update Title Column when blur
-      handleNameChange(e);
-      e.target.blur();
-    };
-    const selectAllInlineTex = e => {
-      // focus Input hidden
-      e.target.focus();
-    };
+
     const handleMenuClick = e => {
       if (e.key === '1') {
         setOpen(false);
@@ -90,15 +102,26 @@ export const Column: FC<ColumnProps> = React.memo(
     const handleOpenChange = flag => {
       setOpen(flag);
     };
+    const handleColumnTitleBlur = e => {
+      handleUpdateColumn(e);
+      e.target.blur();
+    };
+    const selectAllInlineTex = e => {
+      e.target.focus();
+    };
 
-    const handleNameChange = async (evt: any) => {
-      dispatch(
-        projectActions.updateColumn({
-          _id: list._id,
-          title: evt.target.value,
-          project_id: project_id,
-        }),
-      );
+    // Update Column
+    const handleUpdateColumn = async (evt: any) => {
+      const updateColumn = {
+        _id: list._id,
+        title: evt.target.value,
+        project_id: project_id,
+        sort: list.sort,
+        status: list.status,
+      };
+      // action
+      updateColumnAction.mutate(updateColumn);
+      evt.target.blur();
     };
 
     // Create New Task
@@ -125,12 +148,7 @@ export const Column: FC<ColumnProps> = React.memo(
     //Delete Column
     const handleDeleteColumn = () => {
       if (list.tasks.length <= 0 && list.sort >= 2) {
-        dispatch(
-          projectActions.deleteColumn({
-            _id: list._id,
-            project_id: project_id,
-          }),
-        );
+        deleteColumnAction.mutate(list._id);
       }
     };
     return (
@@ -147,7 +165,7 @@ export const Column: FC<ColumnProps> = React.memo(
             onClick={selectAllInlineTex}
             onBlur={handleColumnTitleBlur}
             onMouseDown={e => e.preventDefault()}
-            onKeyDown={event => event.key === 'Enter' && handleColumnTitleBlur(event)}
+            onKeyDown={event => event.key === 'Enter' && handleUpdateColumn(event)}
           />
           <MoreButton
             className="dropdown-btn"

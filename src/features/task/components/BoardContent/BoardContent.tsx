@@ -5,17 +5,18 @@ import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
 
 // Hooks
-import { useAppDispatch } from 'src/app/hooks';
 import { useDataQueries } from 'src/features/task/projectQuery';
 
 // Components
 import { Column } from 'src/features/task/components/Column/Column';
 
 // Actions
-import { projectActions } from 'src/features/task/projectSlice';
-
 // Models
-import { DataDnd, DataNewTask, IColumnCreate, Task, TaskCreate, TaskDnd } from 'src/models';
+import { IColumnCreate, Task, TaskCreate } from 'src/models';
+
+// Apis
+import columnApi from 'src/api/columnApi';
+import taskApi from 'src/api/taskApi';
 
 // Utils
 import { sortArray, updateTaskAfterDND } from 'src/utils/arrayUtils';
@@ -23,8 +24,7 @@ import { sortArray, updateTaskAfterDND } from 'src/utils/arrayUtils';
 // Styles
 import { BoxNewColumn, Container, Lists } from './BoardContent.styles';
 import { BtnCancelStyledTask, BtnOkStyledTask } from 'src/constants/component-styled';
-import { useMutation } from '@tanstack/react-query';
-import columnApi from '../../../../api/columnApi';
+import { Updater, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface BoardContentProps {
   projectId: string | number;
@@ -33,17 +33,93 @@ interface BoardContentProps {
 const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
   // Queries
   const query = useDataQueries();
+  const queryClient = useQueryClient();
   const createColumnAction = useMutation({
     mutationFn: (body: IColumnCreate) => {
       return columnApi.add(body);
     },
+    onSuccess: response => {
+      queryClient.invalidateQueries({ queryKey: ['columns'], exact: true });
+    },
   });
+
+  const createTaskAction = useMutation({
+    mutationFn: (body: Task) => {
+      return taskApi.add(body);
+    },
+    // When mutate is called:
+    onMutate: async newTodo => {
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+
+      // Snapshot the previous value
+      const previousTodos = queryClient.getQueryData(['tasks']);
+
+      // Optimistically update to the new value
+      const updateTasks: Updater<Task[], any> = old => [...(old || []), newTodo];
+      queryClient.setQueryData(['tasks'], a => updateTasks(a));
+
+      // Return a context object with the snapshotted value
+      return { previousTodos };
+    },
+    // If the mutation fails,
+    // use the context returned from onMutate to roll back
+    onError: (err, newTodo, context) => {
+      queryClient.setQueryData(['tasks'], context?.previousTodos);
+    },
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
+  const updateTaskAction = useMutation({
+    mutationFn: (body: Task) => {
+      return taskApi.update(body);
+    },
+    onMutate: async newTodo => {
+      await queryClient.cancelQueries({ queryKey: ['tasks', newTodo._id] });
+      const previousTodo = queryClient.getQueryData(['tasks', newTodo._id]);
+      queryClient.setQueryData(['tasks', newTodo._id], newTodo);
+      return { previousTodo, newTodo };
+    },
+    onError: (err, newTodo, context) => {
+      queryClient.setQueryData(['tasks', context?.newTodo._id], context?.previousTodo);
+    },
+    onSettled: res => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
+  const deleteTaskAction = useMutation({
+    mutationFn: (_id: string) => {
+      return taskApi.remove(_id);
+    },
+    onMutate: async _id => {
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+      const previousTodos = queryClient.getQueryData(['tasks']);
+      const deletedTasks: Updater<Task[], any> = old => old.filter(todo => todo._id !== _id);
+      queryClient.setQueryData(['tasks'], a => deletedTasks(a));
+      return { previousTodos };
+    },
+    onError: (err, task, context) => {
+      queryClient.setQueryData(['tasks'], context?.previousTodos);
+    },
+    onSettled: res => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    },
+  });
+  const dragAndDrop = useMutation({
+    mutationFn: (body: Task[]) => {
+      return taskApi.updateTasks(body);
+    },
+    onSuccess: res => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'], exact: true });
+    },
+  });
+
   // State
   const [isOpenNewColForm, setIsOpenNewColForm] = useState<boolean>(false);
   const [newColTitle, setNewColTitle] = useState<string>('');
-
-  // Selector - Dispatch
-  const dispatch = useAppDispatch();
 
   // Variables
   console.log('Columns: ', sortArray(query.queryColumns?.data));
@@ -55,19 +131,23 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
   });
 
   // Handle Drag and Drop
-  const onDragEnd = useCallback(result => {
-    updateStateTask([], result.source, result.destination, result.draggableId);
-  }, []);
+  const onDragEnd = useCallback(
+    result => {
+      console.log('ListTask:', query.queryTasks?.data);
+      updateStateTask(
+        query.queryTasks?.data,
+        result.source,
+        result.destination,
+        result.draggableId,
+      );
+    },
+    [query.queryTasks?.data],
+  );
+
   const updateStateTask = (listTasks, source, destination, id) => {
+    console.log('List tasks testing', listTasks);
     const taskMixture = updateTaskAfterDND(listTasks, destination, source, id);
-    const dnd: TaskDnd = { _id: id, column_id: destination.droppableId, sort: destination.index };
-    const data: DataDnd = {
-      dnd,
-      tasks: taskMixture.tasks,
-      updated: taskMixture.updated,
-    };
-    console.log('Data Sau DND:', data);
-    dispatch(projectActions.fetchTaskDragAndDrop(data));
+    dragAndDrop.mutate(taskMixture.updated);
   };
 
   // Create New Column
@@ -78,44 +158,26 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
       status: 1,
       sort: Number(query.queryColumns?.data?.length),
     };
-    // add
-    createColumnAction.mutate(newColumn, {
-      onSuccess: () => {
-        query.queryColumns.refetch();
-      },
-    });
-    /// dispatch(projectActions.addColumn(newColumn));
+    // action
+    createColumnAction.mutate(newColumn);
     setNewColTitle('');
     setIsOpenNewColForm(false);
   };
 
   // Create New Task
   const handleCreateCard = useCallback((task: TaskCreate) => {
-    const data: DataNewTask = {
-      new_task: task,
-      tasks: [],
-    };
-    dispatch(projectActions.addTask(data));
-    // const response = await taskApi.add(task);
-    //  if (response.status === 200) {
-    //     const listTask = [...tasks, response.data];
-    //     dispatch(projectActions.fetchTaskColumn(listTask));
-    //     return response.data;
-    // }
+    createTaskAction.mutate(task);
   }, []);
 
   // Update task
   const handleUpdateTask = (task: Task) => {
-    dispatch(projectActions.updateTask(task));
+    updateTaskAction.mutate(task);
   };
   // Delete Task
   const handleDeleteTask = (_id: string) => {
-    dispatch(projectActions.deleteTask(_id));
+    deleteTaskAction.mutate(_id);
   };
 
-  //console.log('Cards:', columns);
-  //
-  console.log('ListTask:', listTaskColumns);
   return (
     <Container>
       <DragDropContext onDragEnd={onDragEnd}>
@@ -151,7 +213,6 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
                   className="input-enter-new-column "
                   value={newColTitle}
                   onChange={e => setNewColTitle(e.target.value)}
-                  //  ref={newColInputRef}
                   onKeyDown={event => event.key === 'Enter' && handleCreateNewColumn()}
                 />
                 <div className="ft-btn">

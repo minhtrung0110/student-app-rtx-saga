@@ -75,19 +75,26 @@ const ManageTaskPage: FC = () => {
   const { data, isLoading, isFetching, isError } = useQuery({
     queryKey: ['projects'],
     queryFn: () => projectApi.getById(PROJECT_ID),
-    cacheTime: 6 * 1000,
-    staleTime: 5 * 1000,
+    cacheTime: 60 * 1000,
+    staleTime: 50 * 1000,
   });
-
   // Notification
 
   return (
-    <TaskPage style={{ backgroundImage: `url(${backgroundImage})` }}>
-      {contextHolder}
-      <HeaderBarTask />
-      <BoardBarTask name={!!data?.data ? data.data.name : ''} />
-      <BoardContent projectId={!!data?.data ? data?.data._id : ''} />
-    </TaskPage>
+    <>
+      {isLoading ? (
+        <h1>Loading....</h1>
+      ) : (
+        <>
+          <TaskPage style={{ backgroundImage: `url(${backgroundImage})` }}>
+            {contextHolder}
+            <HeaderBarTask />
+            <BoardBarTask name={!!data?.data ? data.data.name : ''} />
+            <BoardContent projectId={!!data?.data ? data?.data._id : ''} />
+          </TaskPage>
+        </>
+      )}
+    </>
   );
 };
 
