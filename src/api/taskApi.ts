@@ -27,9 +27,10 @@ const taskApi = {
     const response: ApiResponse<Task> = await axiosKanban.patch(url, data);
     return new ApiResponse(response.status, response.message, response.data);
   },
-  update(data: Partial<Task>): Promise<Task> {
+  async update(data: Partial<Task>) {
     const url = `${prefix}/${data._id}`;
-    return axiosKanban.put(url, data);
+    const response: ApiResponse<Task> = await axiosKanban.put(url, data);
+    return new ApiResponse(response.status, response.message, response.data);
   },
 
   remove(id: string | number | boolean): Promise<any> {
