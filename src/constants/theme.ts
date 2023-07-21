@@ -45,7 +45,7 @@ export const THEME: TTheme = {
     gray80Color: '#c0bfbf',
     gray97Color: '#e3e3e3' /* lighter gray :)*/,
     gray100Color: 'rgba(239, 239, 239, 0.8)',
-    bsGreen100: '#bbefce',
+    bsGreen100: '#a0f5eb',
     bsBrown200: '#413c3d',
     blue: '#1577e0',
     lightBlue: '#CFE8FF',
@@ -54,6 +54,7 @@ export const THEME: TTheme = {
     bsActive: '#42a18b',
     bsDisabled: '#ce5c6d',
     bgColumTask: '#f1f1f1',
+    bsDragColor: '#d5f8eb',
 
     pdContent: '24px',
     taskBrRadius: '3px',

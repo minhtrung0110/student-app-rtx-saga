@@ -68,3 +68,11 @@ export class ApiResponse<T> {
     this.data = data;
   }
 }
+
+export interface TNotification {
+  type: 'success' | 'info' | 'warning' | 'error';
+  message: string;
+  description: string;
+  duration?: number;
+  init: boolean;
+}

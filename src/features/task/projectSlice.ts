@@ -5,95 +5,43 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from 'src/app/store';
 
 // Models
-import {
-  DataDnd,
-  DataNewTask,
-  IColumn,
-  IColumnCreate,
-  IColumnUpdate,
-  ListParams,
-  ProjectTask,
-  Task,
-} from 'src/models';
+import { TNotification } from 'src/models';
 
 export interface ProjectState {
   loading: boolean;
-  project: ProjectTask | null;
-  columns: IColumn[];
-  tasks: Task[];
-  filter: ListParams;
-  errors: string;
+  notification: TNotification;
+  error: string;
+  warning: string;
 }
 
 const initialState: ProjectState = {
   loading: false,
-  project: null,
-  columns: [],
-  tasks: [],
-  filter: [],
-  errors: '',
+  notification: {
+    type: 'info',
+    message: '',
+    description: '',
+    init: true,
+  },
+  error: '',
+  warning: '',
 };
 
 const projectSlice = createSlice({
   name: 'project',
   initialState,
   reducers: {
-    fetchError(state, action: PayloadAction<string>) {
-      state.errors = action.payload;
+    fetchErrorMessage(state, action: PayloadAction<string>) {
+      state.warning = action.payload;
     },
-    setFilterWithDebounce(state, action: PayloadAction<ListParams>) {},
-    fetchProjectData(state, action: PayloadAction<ProjectTask>) {
-      state.loading = true;
-      state.project = action.payload;
-      state.columns = action.payload.board_columns;
-      state.tasks = action.payload.tasks;
-      state.loading = false;
+    fetchErrorType(state, action: PayloadAction<string>) {
+      state.error = action.payload;
     },
-
-    fetchListColumnsChange(state, action: PayloadAction<IColumn[]>) {
-      state.loading = true;
-      state.columns = action.payload;
-      state.loading = false;
+    fetchLoading(state, action: PayloadAction<boolean>) {
+      state.loading = action.payload;
     },
-
-    fetchListTasksChange(state, action: PayloadAction<Task[]>) {
-      state.loading = true;
-      state.tasks = action.payload;
-      state.loading = false;
+    fetchNotification(state, action: PayloadAction<TNotification>) {
+      state.notification = action.payload;
     },
-
-    fetchProjectList(state, action: PayloadAction<ListParams>) {
-      console.log({ action });
-
-      state.loading = true;
-      state.filter = { _project_id: 'a43fn5ah' };
-    },
-
-    setFilter(state, action: PayloadAction<ListParams>) {
-      state.filter = action.payload;
-    },
-    // Column
-    addColumn(state, action: PayloadAction<IColumnCreate>) {
-      state.loading = true;
-    },
-    updateColumn(state, action: PayloadAction<IColumnUpdate>) {
-      state.loading = true;
-    },
-    deleteColumn(state, action: PayloadAction<IColumnUpdate>) {
-      state.loading = true;
-    },
-
-    // Task
-    addTask(state, action: PayloadAction<DataNewTask>) {
-      state.loading = true;
-    },
-    updateTask(state, action: PayloadAction<Task>) {
-      state.loading = true;
-    },
-    deleteTask(state, action: PayloadAction<string>) {
-      state.loading = true;
-    },
-    fetchTaskDragAndDrop(state, action: PayloadAction<DataDnd>) {},
   },
 });
 
@@ -101,12 +49,10 @@ const projectSlice = createSlice({
 export const projectActions = projectSlice.actions;
 
 // Selectors
-export const selectProject = (state: RootState) => state.project.project;
-export const selectColumnList = (state: RootState) => state.project.columns;
-export const selectTaskList = (state: RootState) => state.project.tasks;
-export const selectProjectLoading = (state: RootState) => state.project.loading;
-export const selectProjectError = (state: RootState) => state.project.errors;
-export const selectProjectFilter = (state: RootState) => state.project.filter;
+export const selectErrorType = (state: RootState) => state.project.error;
+export const selectErrorMessage = (state: RootState) => state.project.warning;
+export const selectLoading = (state: RootState) => state.project.loading;
+export const selectNotification = (state: RootState) => state.project.notification;
 
 // Reducer
 const projectReducer = projectSlice.reducer;
