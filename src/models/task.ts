@@ -39,7 +39,7 @@ export interface TaskDnd {
 }
 
 export interface DataDnd {
-  dnd: TaskDnd;
+  old_tasks: Task[];
   tasks: Task[];
   updated: Task[];
 }
