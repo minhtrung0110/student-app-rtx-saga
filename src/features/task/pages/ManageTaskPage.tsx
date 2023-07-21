@@ -1,17 +1,7 @@
 // Libraries
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import styled from 'styled-components';
 import { notification } from 'antd';
-
-// Hooks
-import { useAppDispatch, useAppSelector } from 'src/app/hooks';
-
-// Actions
-import {
-  selectProject,
-  selectProjectError,
-  selectProjectFilter,
-} from 'src/features/task/projectSlice';
 
 // Constants
 import { THEME } from 'src/constants';
@@ -21,9 +11,12 @@ import backgroundImage from 'src/asset/images/backgroundTask01.jpg';
 import BoardContent from 'src/features/task/components/BoardContent/BoardContent';
 import HeaderBarTask from 'src/features/task/components/HeaderBar/HeaderBarTask';
 import BoardBarTask from 'src/features/task/components/BoardBar/BoardBarTask';
-import { useQuery } from '@tanstack/react-query';
-import projectApi from '../../../api/projectApi';
-import { PROJECT_ID } from '../../../constants/common';
+import KanbanSkeleton from 'src/components/commoms/Skeleton/KanbanSkeleton';
+
+// Hooks
+import { useGetProjects } from 'src/queries/project';
+import { useAppDispatch, useAppSelector } from 'src/app/hooks';
+import { projectActions, selectNotification } from 'src/features/task/projectSlice';
 
 const TaskPage = styled.div`
   height: 1400px;
@@ -41,9 +34,9 @@ const TaskPage = styled.div`
   .minhtrung-content-editable {
     background-color: inherit;
     border: none;
-    font-size: inherit;
-    font-weight: inherit;
+    font-size: 14px;
     cursor: pointer;
+    font-weight: 600;
 
     &:focus {
       background-color: white;
@@ -53,16 +46,11 @@ const TaskPage = styled.div`
   }
 `;
 
-type NotificationType = 'success' | 'info' | 'warning' | 'error';
+export type NotificationType = 'success' | 'info' | 'warning' | 'error';
+
 const ManageTaskPage: FC = () => {
   // State
   const [api, contextHolder] = notification.useNotification();
-
-  // Selector - Dispatch
-  const dispatch = useAppDispatch();
-  const project = useAppSelector(selectProject);
-  const filter = useAppSelector(selectProjectFilter);
-  const error = useAppSelector(selectProjectError);
   const openNotificationWithIcon = (type: NotificationType, message, description, duration) => {
     api[type]({
       message,
@@ -72,18 +60,40 @@ const ManageTaskPage: FC = () => {
   };
 
   // Get Data Project
-  const { data, isLoading, isFetching, isError } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => projectApi.getById(PROJECT_ID),
-    cacheTime: 60 * 1000,
-    staleTime: 50 * 1000,
-  });
+  const { data, isLoading, isError, error } = useGetProjects();
+
   // Notification
+  const notifySelector = useAppSelector(selectNotification);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    if (isError) {
+      openNotificationWithIcon('error', 'Load Data Project Failed', error.message, 3);
+    }
+  }, [isError]);
+  useEffect(() => {
+    if (!notifySelector.init) {
+      openNotificationWithIcon(
+        notifySelector.type,
+        notifySelector.message,
+        notifySelector.description,
+        notifySelector.duration,
+      );
+      dispatch(
+        projectActions.fetchNotification({
+          type: 'info',
+          message: '',
+          description: '',
+          duration: 0.1,
+          init: true,
+        }),
+      );
+    }
+  }, [notifySelector]);
 
   return (
     <>
       {isLoading ? (
-        <h1>Loading....</h1>
+        <KanbanSkeleton />
       ) : (
         <>
           <TaskPage style={{ backgroundImage: `url(${backgroundImage})` }}>

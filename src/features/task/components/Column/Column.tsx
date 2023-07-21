@@ -8,7 +8,7 @@ import TextArea from 'antd/es/input/TextArea';
 import { v4 as uuidv4 } from 'uuid';
 
 // Models
-import { IColumn, Task, TaskCreate } from 'src/models';
+import { Task, TaskCreate } from 'src/models';
 
 // Styles
 import { AreaAddTask, ContainerColumn, Footer, Header, MoreButton } from './Column.styles';
@@ -19,15 +19,19 @@ import { Card } from 'src/features/task/components/Card/Card';
 import { StrictModeDroppable } from 'src/components/commoms/StrictModeDroppable';
 import ConfirmModal from 'src/components/commoms/ConfirmModal';
 
-// Hook and Actions
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import columnApi from '../../../../api/columnApi';
+// Constants
+import { THEME } from 'src/constants';
+
+// Apis
+import { useDeleteColumn, useUpdateColumn } from 'src/queries/column';
 
 // Variables
 const getItemStyle = (isDragging: boolean, draggableStyle: any) => ({
-  background: 'white',
+  fontWeight: isDragging ? 'bold' : '',
+  background: isDragging ? `${THEME.token.bsDragColor}` : 'white',
   padding: '10px 10px 10px 8px',
   marginBottom: '5px',
+  width: '238px',
   borderRadius: '5px',
   borderBottom: '1px solid rgb(178,185,197)',
   ...draggableStyle,
@@ -63,28 +67,11 @@ const compareProps = (prev, next) => {
 export const Column: FC<ColumnProps> = React.memo(
   ({ list, cards, onCreate, onUpdateTask, onDeleteTask, project_id }) => {
     // Queries
-    const queryClient = useQueryClient();
-    const updateColumnAction = useMutation({
-      mutationFn: (body: IColumn) => {
-        return columnApi.update(body);
-      },
-      onSuccess: res => {
-        const col = { _id: res.data._id, title: res.data.title, sort: res.data.sort };
-        // console.log('Data', col);
-        // queryClient.setQueryData(['columns', res.data._id], res.data);
-        queryClient.invalidateQueries({ queryKey: ['columns'], exact: true });
-      },
-    });
-    const deleteColumnAction = useMutation({
-      mutationFn: (id: string) => {
-        return columnApi.remove(id);
-      },
-      onSuccess: response => {
-        queryClient.invalidateQueries({ queryKey: ['columns'], exact: true });
-      },
-    });
+    const { mutate: updateColumn } = useUpdateColumn();
+    const { mutate: deleteColumn } = useDeleteColumn();
+
     // State
-    const [columnTitle, setColumnTitle] = useState<string>(list._id);
+    const [columnTitle, setColumnTitle] = useState<string>(list.title);
     const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
     const [valueNewCard, setValueNewCard] = useState<string>('');
     const [isAddCard, setIsAddCard] = useState<boolean>(false);
@@ -103,7 +90,6 @@ export const Column: FC<ColumnProps> = React.memo(
       setOpen(flag);
     };
     const handleColumnTitleBlur = e => {
-      handleUpdateColumn(e);
       e.target.blur();
     };
     const selectAllInlineTex = e => {
@@ -112,7 +98,7 @@ export const Column: FC<ColumnProps> = React.memo(
 
     // Update Column
     const handleUpdateColumn = async (evt: any) => {
-      const updateColumn = {
+      const updatedColumn = {
         _id: list._id,
         title: evt.target.value,
         project_id: project_id,
@@ -120,7 +106,7 @@ export const Column: FC<ColumnProps> = React.memo(
         status: list.status,
       };
       // action
-      updateColumnAction.mutate(updateColumn);
+      updateColumn(updatedColumn);
       evt.target.blur();
     };
 
@@ -148,8 +134,9 @@ export const Column: FC<ColumnProps> = React.memo(
     //Delete Column
     const handleDeleteColumn = () => {
       if (list.tasks.length <= 0 && list.sort >= 2) {
-        deleteColumnAction.mutate(list._id);
+        deleteColumn(list._id);
       }
+      setShowConfirmModal(false);
     };
     return (
       <ContainerColumn>
@@ -203,7 +190,10 @@ export const Column: FC<ColumnProps> = React.memo(
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+                          style={getItemStyle(
+                            snapshot.isDragging && !snapshot.isDropAnimating,
+                            provided.draggableProps.style,
+                          )}
                         >
                           <Card
                             key={post._id}

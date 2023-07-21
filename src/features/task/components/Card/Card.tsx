@@ -13,7 +13,7 @@ import {
   TaskItem,
   TextEdit,
 } from './Card.styles';
-import { MoreButton } from '../Column/Column.styles';
+import { MoreButton } from 'src/features/task/components/Column/Column.styles';
 
 //Modules
 import GroupMember from 'src/components/commoms/GroupMember';
@@ -22,7 +22,7 @@ import GroupMember from 'src/components/commoms/GroupMember';
 import { Task } from 'src/models';
 
 // Utils
-import { generateRandomID } from 'src/utils/common';
+import { generateRandomID, getUserTask } from 'src/utils/common';
 
 const items = [
   {
@@ -51,7 +51,7 @@ const compareProps = (prev, next) => {
 
 export const Card: FC<ICard> = React.memo(({ task, onUpdate, onDelete }) => {
   const { _id, sort, priority, ...rest } = task;
-  const members = task.assignee_user;
+  const members = getUserTask(task, 'assignee_user', 'report_user');
   const [title, setTitle] = useState<string>(task.title);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
@@ -109,6 +109,7 @@ export const Card: FC<ICard> = React.memo(({ task, onUpdate, onDelete }) => {
       </HeaderTask>
       <FooterTask>
         <div className="id">
+          id:
           {!!_id ? _id.slice(_id.length - 6, _id.length - 1) : generateRandomID()}
           {`-${sort}`}
         </div>

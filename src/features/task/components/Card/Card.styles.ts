@@ -3,13 +3,15 @@ import { THEME } from '../../../../constants';
 import { listPriority } from '../../../../utils/initTask';
 
 export const TaskItem = styled.div`
-  background: white;
+  background-color: inherit;
   display: flex;
   justify-content: space-between;
   user-select: none;
   flex-direction: column;
+  cursor: pointer;
 `;
 export const HeaderTask = styled.div`
+  background-color: inherit;
   display: flex;
   justify-content: space-between;
   align-content: center;
@@ -116,9 +118,15 @@ export const SaveButton = styled.button`
   }
 `;
 export const TextEdit = styled.textarea`
-  height: 3.5rem;
-  width: 12rem;
+  height: 4.5rem;
+  width: 10rem;
+  max-width: 10rem;
+  max-height: 10rem;
   border-radius: 3px;
   border: 1px solid ${THEME.token.gray80Color};
   margin-bottom: 0.5rem;
+
+  &:focus {
+    outline: none;
+  }
 `;
