@@ -8,6 +8,7 @@ import AdminLayout from './components/Layout/AdminLayout';
 import ListStudentPage from './features/student/pages/ListStudentPage';
 import FormStudentPage from './features/student/pages/FormStudentPage';
 import ManageTaskPage from './features/task/pages/ManageTaskPage';
+import ManageCustomerPage from './features/customer/pages/ManageCustomerPage';
 
 function App() {
   return (
@@ -28,6 +29,10 @@ function App() {
           element={<AdminLayout slot={<FormStudentPage />} />}
         />
         <Route path={config.routes.tasks} element={<AdminLayout slot={<ManageTaskPage />} />} />
+        <Route
+          path={config.routes.react_table}
+          element={<AdminLayout slot={<ManageCustomerPage />} />}
+        />
       </Route>
     </Routes>
   );

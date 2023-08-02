@@ -37,6 +37,11 @@ const AdminLayout: FC<AdminLayoutProps> = ({ slot }) => {
       config.routes.list_student,
       <UnorderedListOutlined />,
     ),
+    getItem(
+      <NavLink to={config.routes.react_table}>Khách Hàng</NavLink>,
+      config.routes.react_table,
+      <UnorderedListOutlined />,
+    ),
   ];
 
   const backgroundColor = THEME?.token?.backgroundColor;

@@ -32,6 +32,7 @@ export interface RouteConfig {
   update_student: string;
   delete_student: string;
   tasks: string;
+  react_table: string;
 }
 
 export interface ServerUrl {

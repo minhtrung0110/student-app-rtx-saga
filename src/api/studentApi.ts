@@ -1,4 +1,7 @@
+// Models
 import { ListResponse, Student, StudentType } from 'src/models';
+
+// Api
 import axiosClient from './axiosClient';
 
 const prefix = '/student';
