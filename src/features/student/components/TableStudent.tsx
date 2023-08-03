@@ -19,7 +19,7 @@ import { globalNavigate } from 'src/components/commoms/GlobalHistory';
 import { config } from 'src/config';
 
 interface TableStudentProps {
-  listStudent: Student[];
+  listStudent: Student[] | any;
   onDelete?: (id: string | number | boolean) => void;
 }
 

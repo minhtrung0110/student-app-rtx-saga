@@ -1,5 +1,5 @@
 // Libraries
-import React, { FC, useEffect } from 'react';
+import React, { FC } from 'react';
 import styled from 'styled-components';
 
 // Components
@@ -15,27 +15,25 @@ import { ListParams } from 'src/models';
 import {
   selectStudentFilter,
   selectStudentList,
-  selectStudentLoading,
   studentActions,
 } from 'src/features/student/studentSlice';
 import { useAppDispatch, useAppSelector } from 'src/app/hooks';
+import { useGetDataStudent } from '../studentQuery';
 
 const ListPageStyled = styled.div`
   padding: 24px;
   margin: 12px;
 `;
 const ListStudentPage: FC = () => {
+  const filter = useAppSelector(selectStudentFilter);
+  // query
+  const query = useGetDataStudent(filter);
+
   const dispatch = useAppDispatch();
   const studentList = useAppSelector(selectStudentList);
-  const filter = useAppSelector(selectStudentFilter);
-  const loading = useAppSelector(selectStudentLoading);
-
-  useEffect(() => {
-    dispatch(studentActions.fetchStudentList(filter));
-  }, [dispatch, filter]);
 
   const handleSearchChange = (newFilter: ListParams) => {
-    dispatch(studentActions.setFilterWithDebounce(newFilter));
+    dispatch(studentActions.setFilter(newFilter));
   };
   const handleDeleteStudent = async (id: string | number | boolean) => {
     try {
@@ -54,9 +52,9 @@ const ListStudentPage: FC = () => {
       <div className={'student-page-header'}>
         <FilterStudent filter={filter} onSearchChange={handleSearchChange} />
       </div>
-      {!loading ? (
+      {!query.isLoading ? (
         <div className={'student-page-content'}>
-          <TableStudent listStudent={studentList} onDelete={handleDeleteStudent} />
+          <TableStudent listStudent={query.data} onDelete={handleDeleteStudent} />
         </div>
       ) : (
         <TableSkeleton />
