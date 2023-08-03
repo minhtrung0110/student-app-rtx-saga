@@ -27,6 +27,7 @@ import Filter from 'src/features/customer/components/Filter/Filter';
 interface TableProps {
   columns: any[];
   defaultData: any;
+  onFilter: any;
 }
 
 const items = [
@@ -70,7 +71,7 @@ const fuzzySort: SortingFn<any> = (rowA, rowB, columnId) => {
   // Provide an alphanumeric fallback for when the item ranks are equal
   return dir === 0 ? sortingFns.alphanumeric(rowA, rowB, columnId) : dir;
 };
-const TableCustom: FC<TableProps> = ({ columns, defaultData }) => {
+const TableCustom: FC<TableProps> = ({ columns, defaultData, onFilter }) => {
   const rerender = React.useReducer(() => ({}), {})[1];
   //  const [data, setData] = useState<Student[]>(defaultData);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -107,6 +108,7 @@ const TableCustom: FC<TableProps> = ({ columns, defaultData }) => {
       table.setPageSize(pageSize);
     }
   };
+  console.log('Testing table:', table.getHeaderGroups(), table.getRowModel());
   return (
     <>
       <table style={{ tableLayout: 'auto' }}>
@@ -135,7 +137,7 @@ const TableCustom: FC<TableProps> = ({ columns, defaultData }) => {
                         </div>
                         {header.column.getCanFilter() ? (
                           <div>
-                            <Filter column={header.column} table={table} />
+                            <Filter column={header.column} table={table} onFilter={onFilter} />
                           </div>
                         ) : null}
                       </>

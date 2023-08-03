@@ -1,5 +1,5 @@
 // Libraries
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 
 // Models
@@ -13,8 +13,10 @@ import TableCustom from 'src/features/customer/components/Table/Table';
 import { useCustomerQueries } from 'src/features/customer/customerQuery';
 
 const ManageCustomerPage: FC = () => {
+  // state
+  const [filter, setFilter] = useState('');
   // query
-  const query = useCustomerQueries();
+  const query = useCustomerQueries(filter);
 
   // tans tack table
   const columns = React.useMemo<ColumnDef<Student, any>[]>(
@@ -71,13 +73,13 @@ const ManageCustomerPage: FC = () => {
     ],
     [],
   );
-
+  console.log('Filter:', filter);
   return (
     <div>
       {query.isLoading ? (
         <TableSkeleton />
       ) : (
-        <TableCustom columns={columns} defaultData={query.data} />
+        <TableCustom columns={columns} defaultData={query.data} onFilter={setFilter} />
       )}
     </div>
   );

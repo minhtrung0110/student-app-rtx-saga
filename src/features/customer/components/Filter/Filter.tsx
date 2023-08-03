@@ -8,9 +8,10 @@ import { InputStyled } from '../Table/Table.styles';
 interface FilterProps {
   column: Column<any, unknown>;
   table: Table<any>;
+  onFilter: any;
 }
 
-const Filter: FC<FilterProps> = ({ column, table }) => {
+const Filter: FC<FilterProps> = ({ column, table, onFilter }) => {
   const firstValue = table.getPreFilteredRowModel().flatRows[0]?.getValue(column.id);
 
   const columnFilterValue = column.getFilterValue();
@@ -22,7 +23,14 @@ const Filter: FC<FilterProps> = ({ column, table }) => {
         : Array.from(column.getFacetedUniqueValues().keys()).sort(),
     [column.getFacetedUniqueValues()],
   );
-
+  const handleFilterMinMax = value => {
+    onFilter(value);
+    // column.setFilterValue((old: [number, number]) => [value, old?.[1]]);
+  };
+  const handleFilter = value => {
+    onFilter(value);
+    //column.setFilterValue(value);
+  };
   return typeof firstValue === 'number' ? (
     <div>
       <div className="flex space-x-2">
@@ -31,7 +39,7 @@ const Filter: FC<FilterProps> = ({ column, table }) => {
           min={Number(column.getFacetedMinMaxValues()?.[0] ?? '')}
           max={Number(column.getFacetedMinMaxValues()?.[1] ?? '')}
           value={(columnFilterValue as [number, number])?.[0] ?? ''}
-          onChange={value => column.setFilterValue((old: [number, number]) => [value, old?.[1]])}
+          onChange={value => handleFilterMinMax(value)}
           placeholder={`Min ${
             column.getFacetedMinMaxValues()?.[0] ? `(${column.getFacetedMinMaxValues()?.[0]})` : ''
           }`}
@@ -42,7 +50,7 @@ const Filter: FC<FilterProps> = ({ column, table }) => {
           min={Number(column.getFacetedMinMaxValues()?.[0] ?? '')}
           max={Number(column.getFacetedMinMaxValues()?.[1] ?? '')}
           value={(columnFilterValue as [number, number])?.[1] ?? ''}
-          onChange={value => column.setFilterValue((old: [number, number]) => [old?.[0], value])}
+          onChange={value => handleFilterMinMax(value)}
           placeholder={`Max ${
             column.getFacetedMinMaxValues()?.[1] ? `(${column.getFacetedMinMaxValues()?.[1]})` : ''
           }`}
@@ -61,7 +69,7 @@ const Filter: FC<FilterProps> = ({ column, table }) => {
       <DebouncedInput
         type="text"
         value={(columnFilterValue ?? '') as string}
-        onChange={value => column.setFilterValue(value)}
+        onChange={value => handleFilter(value)}
         placeholder={`Search... (${column.getFacetedUniqueValues().size})`}
         className="w-36 border shadow rounded"
         list={column.id + 'list'}

@@ -3,11 +3,13 @@ import { ListResponse, Student, StudentType } from 'src/models';
 
 // Api
 import axiosClient from './axiosClient';
+import { isEmpty } from 'lodash';
 
 const prefix = '/customer';
 const customerApi = {
   getAll(params): Promise<ListResponse<Student>> {
-    return axiosClient.get(prefix, { params });
+    const url = isEmpty(params) ? prefix : `${prefix}/?search=${params}`;
+    return axiosClient.get(url);
   },
 
   getById(id: string): Promise<Student> {
