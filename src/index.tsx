@@ -5,10 +5,11 @@ import { store } from './app/store';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import './index.css';
+import './main.css';
 import { BrowserRouter } from 'react-router-dom';
 import { GlobalHistory } from './components/commoms/GlobalHistory';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from 'styled-components';
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
@@ -20,6 +21,8 @@ export const queryClient = new QueryClient({
     },
   },
 });
+// theme
+const theme = {};
 
 root.render(
   <React.StrictMode>
@@ -27,7 +30,9 @@ root.render(
       <GlobalHistory />
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
-          <App />
+          <ThemeProvider theme={theme}>
+            <App />
+          </ThemeProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </Provider>
