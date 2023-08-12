@@ -24,6 +24,17 @@ import { Task } from 'src/models';
 // Utils
 import { generateRandomID, getUserTask } from 'src/utils/common';
 
+// Actions Hooks
+import { useAppDispatch } from 'src/app/hooks';
+import { projectActions } from 'src/features/task/projectSlice';
+
+// Constants
+import { queryClient } from 'src/index';
+
+// Api
+import taskApi from 'src/api/taskApi';
+import { STALE_TIME } from '../../../../constants/common';
+
 const items = [
   {
     label: 'Edit',
@@ -55,6 +66,8 @@ export const Card: FC<ICard> = React.memo(({ task, onUpdate, onDelete }) => {
   const [title, setTitle] = useState<string>(task.title);
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
+  const dispacth = useAppDispatch();
+
   const handleUpdateTitle = () => {
     if (task.title !== title) {
       onUpdate({ ...task, title: title });
@@ -71,8 +84,26 @@ export const Card: FC<ICard> = React.memo(({ task, onUpdate, onDelete }) => {
     }
   };
 
+  const handleShowDetaiTask = () => {
+    dispacth(projectActions.fetchActionShowTask(true));
+  };
+
+  // Get Detail Task
+  const handleGetDetailTask = async id => {
+    const result = await taskApi.getById(id);
+    if (result.status === 200) return result.data;
+  };
+
+  const handlePrefetchTask = id => {
+    queryClient.prefetchQuery({
+      queryKey: ['tasks', String(id)],
+      queryFn: () => handleGetDetailTask(id),
+      staleTime: STALE_TIME,
+    });
+  };
+
   return (
-    <TaskItem>
+    <TaskItem onClick={handleShowDetaiTask} onMouseEnter={() => handlePrefetchTask(_id)}>
       <HeaderTask>
         <HeaderLeft>
           {!isEdit ? (

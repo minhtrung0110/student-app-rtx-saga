@@ -1,4 +1,4 @@
-import { ApiResponse, ListResponse, Task, TaskCreate, TaskDnd } from 'src/models';
+import { ApiResponse, Task, TaskCreate, TaskDnd } from 'src/models';
 import axiosKanban from './axiosKanban';
 
 const prefix = '/tasks';
@@ -8,9 +8,10 @@ const taskApi = {
     return new ApiResponse(response.status, response.message, response.data);
   },
 
-  getById(id: string): Promise<ListResponse<Task>> {
+  async getById(id: string): Promise<ApiResponse<Task>> {
     const url = `${prefix}/${id}`;
-    return axiosKanban.get(url);
+    const response: ApiResponse<Task> = await axiosKanban.get(url);
+    return new ApiResponse(response.status, response.message, response.data);
   },
 
   async add(data: TaskCreate) {

@@ -21,6 +21,18 @@ const handleGetListTasks = async () => {
   if (result.status === 200) return result.data;
 };
 
+const handleGetDetailTask = async id => {
+  const result = await taskApi.getById(id);
+  if (result.status === 200) return result.data;
+};
+
+export const useGetDetailTask = id => {
+  queryClient.prefetchQuery({
+    queryKey: ['tasks', String(id)],
+    queryFn: () => handleGetDetailTask(id),
+  });
+};
+
 export const useGetDataTasks = () => {
   return useQuery({
     queryKey: ['tasks'],

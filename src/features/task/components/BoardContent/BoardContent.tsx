@@ -10,7 +10,7 @@ import { Column } from 'src/features/task/components/Column/Column';
 import { BtnCancelStyledTask, BtnOkStyledTask } from 'src/constants/component-styled';
 
 // Actions
-import { projectActions } from 'src/features/task/projectSlice';
+import { projectActions, selectStateShowTask } from 'src/features/task/projectSlice';
 
 // Models
 import { DataDnd, Task, TaskCreate, TNotification } from 'src/models';
@@ -26,7 +26,9 @@ import { BoxNewColumn, Container, Lists } from './BoardContent.styles';
 import { useCreateTask, useDeleteTask, useDragAndDrop, useUpdateTask } from 'src/queries/task';
 import { useCreateColumn } from 'src/queries/column';
 import { useGetColumnTasks } from 'src/queries';
-import { useAppDispatch } from 'src/app/hooks';
+import { useAppDispatch, useAppSelector } from 'src/app/hooks';
+import DetailCard from '../DetailCard/DetailCard';
+import { Modal } from 'antd';
 
 interface BoardContentProps {
   projectId: string | number;
@@ -43,7 +45,8 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
 
   // State
   const [isOpenNewColForm, setIsOpenNewColForm] = useState<boolean>(false);
-  const [newColTitle, setNewColTitle] = useState<string>("");
+  const [newColTitle, setNewColTitle] = useState<string>('');
+  const isOpenDetailTask = useAppSelector(selectStateShowTask);
 
   // Dispatch
   const dispatch = useAppDispatch();
@@ -63,10 +66,10 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
         query.useGetTasks?.data,
         result.source,
         result.destination,
-        result.draggableId
+        result.draggableId,
       );
     },
-    [query.useGetTasks?.data]
+    [query.useGetTasks?.data],
   );
 
   const updateStateTask = (listTasks, source, destination, id) => {
@@ -74,7 +77,7 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
     const data: DataDnd = {
       old_tasks: listTasks,
       tasks: taskMixture.tasks,
-      updated: taskMixture.updated
+      updated: taskMixture.updated,
     };
     dragAndDropTask(data);
   };
@@ -85,11 +88,11 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
       title: newColTitle,
       project_id: projectId,
       status: 1,
-      sort: Number(query.useGetColumns?.data?.length)
+      sort: Number(query.useGetColumns?.data?.length),
     };
     // action
     createColumn(newColumn);
-    setNewColTitle("");
+    setNewColTitle('');
     setIsOpenNewColForm(false);
   };
 
@@ -108,27 +111,32 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
     destroyTask(_id);
   };
 
+  // handleCloseDetailTask
+  const handleCloseDetailTask = () => {
+    dispatch(projectActions.fetchActionShowTask(false));
+  };
+
   // Notification
   useEffect(() => {
     if (query.useGetColumns.isError) {
       const error = query.useGetColumns.error as AxiosError;
       const noti: TNotification = {
-        type: "error",
-        message: "Loading Columns Failed",
+        type: 'error',
+        message: 'Loading Columns Failed',
         description: error.message,
         duration: 3,
-        init: false
+        init: false,
       };
       dispatch(projectActions.fetchNotification(noti));
     }
     if (query.useGetTasks.isError) {
       const error = query.useGetTasks.error as AxiosError;
       const noti: TNotification = {
-        type: "error",
-        message: "Loading Tasks Failed",
+        type: 'error',
+        message: 'Loading Tasks Failed',
         description: error.message,
         duration: 3,
-        init: false
+        init: false,
       };
       dispatch(projectActions.fetchNotification(noti));
     }
@@ -169,7 +177,7 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
                   className="input-enter-new-column "
                   value={newColTitle}
                   onChange={e => setNewColTitle(e.target.value)}
-                  onKeyDown={event => event.key === "Enter" && handleCreateNewColumn()}
+                  onKeyDown={event => event.key === 'Enter' && handleCreateNewColumn()}
                 />
                 <div className="ft-btn">
                   <BtnOkStyledTask onClick={handleCreateNewColumn}>Add</BtnOkStyledTask>
@@ -185,6 +193,18 @@ const BoardContent: FC<BoardContentProps> = ({ projectId }) => {
           </BoxNewColumn>
         </Lists>
       </DragDropContext>
+      <Modal
+        title=""
+        onCancel={handleCloseDetailTask}
+        footer={null}
+        width={800}
+        style={{ top: 80 }}
+        open={isOpenDetailTask}
+        destroyOnClose={true}
+        // afterClose={()=>handleUpdateTask}
+      >
+        <DetailCard />
+      </Modal>
     </Container>
   );
 };

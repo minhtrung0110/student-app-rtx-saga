@@ -9,7 +9,7 @@ export const MaxWidthContainer = styled.div`
   ${tw`max-w-sm w-full text-gray-600 space-y-5`}
 `;
 
-export const CenteredText = styled.div`
+export const HeaderForm = styled.div`
   ${tw`text-center pb-8`}
 `;
 
@@ -17,7 +17,7 @@ export const LogoImage = styled.img`
   ${tw`mx-auto`}
 `;
 
-export const Title = styled.h3`
+export const TitleHeader = styled.h3`
   ${tw`text-gray-800 text-2xl font-bold sm:text-3xl`}
 `;
 
@@ -37,8 +37,8 @@ export const RememberMeLabel = styled.label`
   ${tw`font-medium`}
 `;
 
-export const CheckboxInput = styled.input.attrs({ type: 'checkbox' })`
-  ${tw`checkbox-item peer hidden`}
+export const CheckboxInput = styled.input.attrs({ type: 'checkbox', className: 'peer' })`
+  ${tw`hidden`}
 `;
 
 export const CheckboxLabel = styled.label`
