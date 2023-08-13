@@ -16,7 +16,6 @@ function* fetchStudentList(action: PayloadAction<ListParams>) {
     const response: Student[] = yield call(studentApi.getAll, action.payload);
     yield put(studentActions.fetchStudentListSuccess(response));
   } catch (error) {
-    console.log('Failed to fetch student list', error);
     yield put(studentActions.fetchStudentListFailed());
   }
 }
@@ -27,7 +26,6 @@ function* addStudent(action: PayloadAction<StudentType>) {
     const response: Student[] = yield call(studentApi.getAll, action.payload);
     yield put(studentActions.fetchStudentListSuccess(response));
   } catch (error) {
-    console.log('Failed to fetch student list', error);
     yield put(studentActions.fetchStudentListFailed());
   }
 }
@@ -38,7 +36,6 @@ function* updateStudent(action: PayloadAction<Student>) {
     const response: Student[] = yield call(studentApi.getAll, action.payload);
     yield put(studentActions.fetchStudentListSuccess(response));
   } catch (error) {
-    console.log('Failed to fetch student list', error);
     yield put(studentActions.fetchStudentListFailed());
   }
 }
@@ -49,7 +46,6 @@ function* removeStudent(action: PayloadAction<string | number | boolean>) {
     const response: Student[] = yield call(studentApi.getAll, action.payload);
     yield put(studentActions.fetchStudentListSuccess(response));
   } catch (error) {
-    console.log('Failed to fetch student list', error);
     yield put(studentActions.fetchStudentListFailed());
   }
 }

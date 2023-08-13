@@ -95,66 +95,47 @@ function* fetchTaskDragAndDrop(action: PayloadAction<DataDnd>) {
     const response = yield call(taskApi.updateTasks, action.payload.updated);
     if (response.status !== 200) {
       yield put(projectActions.fetchError('Drag And Drop Task Fail'));
-
       const result = yield call(taskApi.getAll, action.payload);
       yield put(projectActions.fetchListTasksChange(result.data));
     }
   } catch (error) {
     console.log('Failed DND', error);
-    // yield put(projectActions.fetchTaskListFailed());
+    yield put(projectActions.fetchError('Error'));
   }
 }
 
 function* createTask(action: PayloadAction<DataNewTask>) {
   try {
     const newListTasks = [...action.payload.tasks, action.payload.new_task];
-    // add tasks to global state
     yield put(projectActions.fetchListTasksChange(newListTasks));
-    // call api create task
     const response = yield call(taskApi.add, action.payload.new_task);
-
-    if (response.status !== 200)
-      // notify if has error
-      yield put(projectActions.fetchError('Create Task Fail'));
-
-    // call api get all tasks instance
+    if (response.status !== 200) yield put(projectActions.fetchError('Create Task Fail'));
     const result = yield call(taskApi.getAll, action.payload);
-
-    // set list tasks instance to global state
     yield put(projectActions.fetchListTasksChange(result.data));
   } catch (error) {
-    //yield put(projectActions.fetchError(error.message())); // Gửi action lỗi
+    yield put(projectActions.fetchError('Error')); // Gửi action lỗi
   }
 }
 
 function* updateTask(action: PayloadAction<Task>) {
   try {
-    // Gọi API cập nhật dữ liệu
     const response = yield call(taskApi.update, action.payload);
     if (response.status !== 200) yield put(projectActions.fetchError('Update Task Fail'));
-    console.log(response);
-
-    // call api get all tasks instance
     const result = yield call(taskApi.getAll, action.payload);
-    console.log('Edit result:', result);
-    // set list tasks instance to global state
     yield put(projectActions.fetchListTasksChange(result.data));
   } catch (error) {
-    // yield put(updateDataFailure(error)); // Gửi action lỗi
+    yield put(projectActions.fetchError('Error')); // Gửi action lỗi
   }
 }
 
 function* deleteTask(action: PayloadAction<string>) {
   try {
-    // Gọi API xóa dữ liệu
     const response = yield call(taskApi.remove, action.payload);
     if (response.status !== 200) yield put(projectActions.fetchError('Delete Task Fail'));
-    // call api get all tasks instance
     const result = yield call(taskApi.getAll, action.payload);
-    // set list tasks instance to global state
     yield put(projectActions.fetchListTasksChange(result.data));
   } catch (error) {
-    // yield put(updateDataFailure(error)); // Gửi action lỗi
+    yield put(projectActions.fetchError('Error'));
   }
 }
 

@@ -1,5 +1,4 @@
 import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
-import counterReducer from '../features/counter/counterSlice';
 import createSagaMiddleware from 'redux-saga';
 import rootSaga from './rootSaga';
 import authReducer from 'src/features/auth/authSlice';
@@ -9,7 +8,6 @@ import projectReducer from '../features/task/projectSlice';
 const sagaMiddleware = createSagaMiddleware();
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
     auth: authReducer,
     student: studentReducer,
     project: projectReducer,
